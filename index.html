@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elena's Spanish Tutor</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Spanish Tutor">
+<meta name="theme-color" content="#faf7f2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf7f2;
+    --bg-warm: #f3ede3;
+    --surface: #ffffff;
+    --border: #e8e0d4;
+    --border-light: #f0ebe3;
+    --terra: #5DADE2;
+    --terra-light: rgba(93,173,226,.08);
+    --terra-hover: rgba(93,173,226,.14);
+    --terra-glow: rgba(93,173,226,.2);
+    --sage: #D4A843;
+    --sage-light: rgba(212,168,67,.08);
+    --sage-hover: rgba(212,168,67,.14);
+    --green: #4a9960;
+    --yellow: #c49a2a;
+    --red: #c0453a;
+    --text: #2c2418;
+    --text2: #7a6e5d;
+    --text3: #a69e90;
+    --radius: 10px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:var(--bg); color:var(--text);
+    font-family:'DM Sans',system-ui,sans-serif;
+    display:flex; height:100vh; overflow:hidden;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(93,173,226,.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(212,168,67,.04) 0%, transparent 50%);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width:224px; min-width:224px; height:100vh; background:var(--bg-warm);
+    border-right:1px solid var(--border); overflow-y:auto; padding:28px 0;
+    position:fixed; left:0; top:0; z-index:20;
+    display:flex; flex-direction:column;
+  }
+  .sidebar::-webkit-scrollbar { width:3px; }
+  .sidebar::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+  .sidebar .logo {
+    padding:0 22px 24px;
+    font-family:'Fraunces',serif; font-size:1.05rem; font-weight:700;
+    color:var(--terra); letter-spacing:-.02em;
+    font-optical-sizing:auto;
+  }
+  .nav-group { margin-bottom:6px; }
+  .nav-group-title {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:7px 22px; color:var(--text3); font-size:.6rem; text-transform:uppercase;
+    letter-spacing:1.8px; cursor:pointer; user-select:none; transition:color .2s;
+    font-weight:600;
+  }
+  .nav-group-title:hover { color:var(--text2); }
+  .nav-group-title .arrow { transition:transform .2s; font-size:.5rem; }
+  .nav-group-title.collapsed .arrow { transform:rotate(-90deg); }
+  .nav-links { overflow:hidden; transition:max-height .3s ease; max-height:600px; }
+  .nav-links.collapsed { max-height:0; }
+  .sidebar a {
+    display:block; padding:6px 22px 6px 30px; color:var(--text2); text-decoration:none;
+    font-size:.78rem; transition:all .15s; border-left:2px solid transparent;
+    font-weight:500;
+  }
+  .sidebar a:hover { color:var(--terra); background:rgba(93,173,226,.04); }
+  .sidebar a.active { color:var(--terra); border-left-color:var(--terra); background:rgba(93,173,226,.06); }
+
+  /* PRACTICE SIDEBAR content */
+  .practice-sidebar-content { display:none; flex-direction:column; flex:1; }
+  .practice-sidebar-content.visible { display:flex; }
+  .reference-sidebar-content { display:block; }
+  .reference-sidebar-content.hidden { display:none; }
+
+  /* Level selector */
+  .level-selector { padding:0 16px; margin-bottom:12px; }
+  .level-btn {
+    display:block; width:100%; text-align:left; padding:9px 14px;
+    background:none; border:none; border-radius:8px; cursor:pointer;
+    font-family:'DM Sans',sans-serif; font-size:.75rem; color:var(--text2);
+    font-weight:500; transition:all .15s; margin-bottom:2px;
+    border-left:2px solid transparent;
+  }
+  .level-btn:hover { background:var(--sage-light); color:var(--sage); }
+  .level-btn.active {
+    background:var(--sage-light); color:var(--sage);
+    border-left-color:var(--sage); font-weight:600;
+  }
+  .level-label { font-size:.65rem; color:var(--text3); display:block; margin-top:1px; }
+
+  /* Scenario buttons (practice) */
+  .scenario-list { padding:0 12px; }
+  .scenario-btn {
+    display:block; width:100%; text-align:left; padding:10px 14px;
+    background:none; border:none; border-radius:8px; cursor:pointer;
+    font-family:'DM Sans',sans-serif; font-size:.78rem; color:var(--text2);
+    font-weight:500; transition:all .15s; margin-bottom:2px;
+    border-left:2px solid transparent;
+  }
+  .scenario-btn:hover { background:var(--terra-light); color:var(--terra); }
+  .scenario-btn.active {
+    background:var(--terra-light); color:var(--terra);
+    border-left-color:var(--terra); font-weight:600;
+  }
+  .scenario-emoji { margin-right:8px; }
+
+  /* Stats panel */
+  .stats-panel {
+    margin-top:auto; padding:16px 20px; border-top:1px solid var(--border);
+  }
+  .stats-panel h3 {
+    font-size:.6rem; text-transform:uppercase; letter-spacing:1.8px;
+    color:var(--text3); font-weight:600; margin-bottom:10px;
+  }
+  .stat-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:5px 0; font-size:.75rem;
+  }
+  .stat-label { color:var(--text2); }
+  .stat-value { font-weight:600; color:var(--text); }
+  .stat-value.accent { color:var(--terra); }
+
+  /* Weak phrases tracker */
+  .tracker-section { padding:0 20px; margin-top:16px; }
+  .tracker-section h3 {
+    font-size:.6rem; text-transform:uppercase; letter-spacing:1.8px;
+    color:var(--text3); font-weight:600; margin-bottom:8px;
+  }
+  .tracker-list { max-height:180px; overflow-y:auto; }
+  .tracker-list::-webkit-scrollbar { width:2px; }
+  .tracker-list::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+  .tracker-item {
+    display:flex; align-items:center; gap:8px; padding:5px 0;
+    font-size:.7rem; color:var(--text2);
+  }
+  .tracker-dot {
+    width:7px; height:7px; border-radius:50%; flex-shrink:0;
+  }
+  .tracker-dot.green { background:var(--green); }
+  .tracker-dot.yellow { background:var(--yellow); }
+  .tracker-dot.red { background:var(--red); }
+  .tracker-phrase { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  /* MAIN */
+  .main {
+    margin-left:224px; flex:1; overflow-y:auto; height:100vh;
+    scroll-behavior:smooth;
+  }
+  .main::-webkit-scrollbar { width:5px; }
+  .main::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+
+  /* MODE TABS */
+  .mode-tabs {
+    display:flex; gap:0; padding:0; background:var(--bg-warm);
+    border-bottom:1px solid var(--border);
+  }
+  .mode-tab {
+    flex:1; padding:14px 24px; border:none; background:none;
+    font-family:'Fraunces',serif; font-size:.92rem; font-weight:600;
+    color:var(--text3); cursor:pointer; transition:all .2s;
+    border-bottom:2px solid transparent;
+    letter-spacing:-.01em;
+  }
+  .mode-tab:hover { color:var(--text2); background:rgba(93,173,226,.03); }
+  .mode-tab.active {
+    color:var(--terra); border-bottom-color:var(--terra);
+    background:var(--bg);
+  }
+
+  /* Reference panel */
+  .reference-panel { padding:32px 44px; max-width:900px; }
+  .reference-panel.hidden { display:none; }
+  .main-header { margin-bottom:28px; }
+  .main-header h1 {
+    font-family:'Fraunces',serif; font-size:clamp(1.5rem,3vw,2rem); font-weight:700;
+    color:var(--text); margin-bottom:8px; letter-spacing:-.03em;
+    font-optical-sizing:auto;
+  }
+  .main-header p { color:var(--text3); font-size:.8rem; line-height:1.5; }
+
+  /* CONTROLS (reference) */
+  .controls {
+    display:flex; align-items:center; gap:16px; padding:12px 20px;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); margin-bottom:28px;
+    position:sticky; top:0; z-index:10;
+    box-shadow:0 1px 3px rgba(44,36,24,.04);
+    flex-wrap:wrap;
+  }
+  .controls label { color:var(--text3); font-size:.78rem; font-weight:500; }
+  .controls input[type=range] { width:110px; accent-color:var(--terra); }
+  .speed-val { color:var(--terra); font-weight:600; min-width:36px; font-size:.82rem; }
+  .legend { display:flex; gap:14px; margin-left:auto; }
+  .legend-item { display:flex; align-items:center; gap:5px; font-size:.7rem; color:var(--text3); font-weight:500; }
+  .legend-dot { width:9px; height:9px; border-radius:50%; }
+  .legend-dot.r { background:var(--terra); }
+  .legend-dot.c { background:var(--sage); }
+
+  /* Dialect selector */
+  .dialect-selector {
+    display:flex; gap:0; background:var(--bg-warm); border-radius:8px;
+    border:1px solid var(--border); overflow:hidden; margin-bottom:20px;
+  }
+  .dialect-btn {
+    flex:1; padding:10px 16px; border:none; background:none;
+    font-family:'DM Sans',sans-serif; font-size:.78rem; font-weight:500;
+    color:var(--text3); cursor:pointer; transition:all .2s;
+    border-right:1px solid var(--border); text-align:center;
+  }
+  .dialect-btn:last-child { border-right:none; }
+  .dialect-btn:hover { color:var(--text2); background:rgba(93,173,226,.04); }
+  .dialect-btn.active {
+    color:var(--terra); background:var(--surface); font-weight:600;
+    box-shadow:0 1px 3px rgba(44,36,24,.06);
+  }
+  .dialect-btn .dialect-flag { margin-right:5px; }
+  .dialect-note {
+    font-size:.68rem; color:var(--text3); font-style:italic;
+    margin-bottom:16px; padding:6px 10px; background:rgba(93,173,226,.04);
+    border-radius:6px; border-left:3px solid var(--terra);
+  }
+
+  /* SECTIONS (reference) */
+  .section { margin-bottom:36px; scroll-margin-top:68px; }
+  .section-title {
+    font-family:'Fraunces',serif; font-size:1rem; font-weight:600;
+    color:var(--text2); letter-spacing:-.01em;
+    margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border-light);
+    font-optical-sizing:auto;
+  }
+
+  /* PHRASE ROWS (reference) */
+  .phrase-row {
+    display:flex; align-items:center; gap:14px; padding:13px 16px;
+    border-radius:var(--radius); margin-bottom:3px; transition:all .2s;
+    background:transparent;
+  }
+  .phrase-row:hover {
+    background:var(--surface);
+    box-shadow:0 1px 4px rgba(44,36,24,.06);
+  }
+  .phrase-row[data-dialect]:not([data-dialect=""]) { display:none; }
+  .btn-group { display:flex; gap:7px; }
+
+  .play-btn, .drill-btn {
+    width:36px; height:36px; min-width:36px; border-radius:50%;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:all .2s; border:none; position:relative;
+  }
+  .play-btn {
+    background:var(--terra-light); color:var(--terra); font-size:13px;
+  }
+  .play-btn:hover { background:var(--terra); color:#fff; transform:scale(1.06); box-shadow:0 2px 8px rgba(93,173,226,.2); }
+  .play-btn.playing { background:var(--terra); color:#fff; animation:breathe-terra 1.4s ease-in-out infinite; }
+
+  .drill-btn {
+    background:var(--sage-light); color:var(--sage); font-size:8.5px;
+    font-weight:600; font-family:inherit; letter-spacing:.5px;
+  }
+  .drill-btn:hover { background:var(--sage); color:#fff; transform:scale(1.06); box-shadow:0 2px 8px rgba(212,168,67,.2); }
+  .drill-btn.playing { background:var(--sage); color:#fff; animation:breathe-sage 1.4s ease-in-out infinite; }
+
+  @keyframes breathe-terra { 0%,100%{box-shadow:0 0 0 0 rgba(93,173,226,.25)} 50%{box-shadow:0 0 0 8px rgba(93,173,226,0)} }
+  @keyframes breathe-sage { 0%,100%{box-shadow:0 0 0 0 rgba(212,168,67,.25)} 50%{box-shadow:0 0 0 8px rgba(212,168,67,0)} }
+
+  .phrase-text { flex:1; display:flex; flex-direction:column; gap:3px; }
+  .spanish { font-size:1.05rem; color:var(--text); font-weight:600; }
+  .pronunciation { font-size:.78rem; color:var(--text3); font-style:italic; transition:color .3s; }
+  .pronunciation .active-syl { color:var(--sage); font-weight:600; font-size:.88rem; }
+  .english { font-size:.78rem; color:var(--text2); }
+  .dialect-tag {
+    font-size:.6rem; color:var(--terra); background:var(--terra-light);
+    padding:2px 6px; border-radius:4px; font-weight:600; margin-left:6px;
+    text-transform:uppercase; letter-spacing:.5px;
+  }
+
+  /* CONVO (reference) */
+  .convo-block {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); padding:18px; margin-top:10px;
+    box-shadow:0 1px 3px rgba(44,36,24,.04);
+  }
+  .convo-line {
+    display:flex; align-items:flex-start; gap:10px;
+    padding:10px 0; border-bottom:1px solid var(--border-light);
+    transition:background .2s;
+  }
+  .convo-line:hover { background:rgba(243,237,227,.4); border-radius:6px; }
+  .convo-line:last-child { border-bottom:none; }
+  .speaker {
+    font-size:.6rem; text-transform:uppercase; letter-spacing:1.5px;
+    min-width:44px; padding-top:3px; font-weight:600;
+  }
+  .speaker.you { color:var(--sage); }
+  .speaker.them { color:var(--terra); }
+  .play-all-btn {
+    display:inline-flex; align-items:center; gap:8px; padding:10px 22px;
+    background:var(--terra); color:#fff;
+    border:none; border-radius:8px; font-family:inherit; font-size:.8rem;
+    font-weight:600; cursor:pointer; margin-top:14px; transition:all .2s;
+    box-shadow:0 2px 8px rgba(93,173,226,.15);
+  }
+  .play-all-btn:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(93,173,226,.2); background:#4A9BD4; }
+
+  /* ============ PRACTICE PANEL ============ */
+  .practice-panel { display:none; flex-direction:column; height:calc(100vh - 49px); }
+  .practice-panel.visible { display:flex; }
+
+  .practice-controls {
+    display:flex; align-items:center; gap:16px; padding:12px 32px;
+    background:var(--surface); border-bottom:1px solid var(--border-light);
+    box-shadow:0 1px 3px rgba(44,36,24,.03); flex-wrap:wrap;
+  }
+  .practice-controls label { color:var(--text3); font-size:.72rem; font-weight:500; }
+  .practice-controls input[type=range] { width:100px; accent-color:var(--terra); }
+  .practice-speed-val { color:var(--terra); font-weight:600; font-size:.78rem; min-width:34px; }
+  .practice-controls-right { margin-left:auto; display:flex; gap:10px; align-items:center; }
+  .btn-sm {
+    padding:6px 14px; border-radius:6px; border:1px solid var(--border);
+    background:var(--surface); font-family:'DM Sans',sans-serif;
+    font-size:.72rem; font-weight:500; color:var(--text2); cursor:pointer;
+    transition:all .15s;
+  }
+  .btn-sm:hover { border-color:var(--terra); color:var(--terra); }
+  .btn-sm.active { background:var(--terra); color:white; border-color:var(--terra); }
+
+  /* Practice dialect selector */
+  .practice-dialect-selector {
+    display:flex; gap:4px; padding:0 32px 8px;
+    background:var(--surface); border-bottom:1px solid var(--border-light);
+  }
+  .practice-dialect-btn {
+    padding:5px 12px; border-radius:6px; border:1px solid var(--border);
+    background:var(--surface); font-family:'DM Sans',sans-serif;
+    font-size:.68rem; font-weight:500; color:var(--text3); cursor:pointer;
+    transition:all .15s;
+  }
+  .practice-dialect-btn:hover { border-color:var(--terra); color:var(--terra); }
+  .practice-dialect-btn.active { background:var(--terra); color:white; border-color:var(--terra); }
+
+  /* Chat area */
+  .chat-area {
+    flex:1; overflow-y:auto; padding:24px 32px; display:flex;
+    flex-direction:column; gap:16px; scroll-behavior:smooth;
+    max-width:720px; margin:0 auto; width:100%;
+  }
+  .chat-area::-webkit-scrollbar { width:4px; }
+  .chat-area::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+
+  /* Messages */
+  .msg-row { display:flex; gap:10px; max-width:85%; animation:fadeUp .3s ease; }
+  .msg-row.ai { align-self:flex-start; }
+  .msg-row.user { align-self:flex-end; flex-direction:row-reverse; }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(8px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+
+  .msg-avatar {
+    width:32px; height:32px; border-radius:50%; display:flex;
+    align-items:center; justify-content:center; font-size:.75rem;
+    flex-shrink:0; margin-top:4px;
+  }
+  .ai .msg-avatar { background:var(--terra-light); color:var(--terra); }
+  .user .msg-avatar { background:var(--sage-light); color:var(--sage); }
+
+  .msg-bubble {
+    padding:14px 18px; border-radius:14px; position:relative;
+  }
+  .ai .msg-bubble {
+    background:var(--surface); border:1px solid var(--border-light);
+    border-bottom-left-radius:4px;
+  }
+  .user .msg-bubble {
+    background:var(--sage-light); border:1px solid rgba(212,168,67,.12);
+    border-bottom-right-radius:4px;
+  }
+
+  .msg-spanish {
+    font-size:1.1rem; font-weight:600; color:var(--text); margin-bottom:6px;
+    line-height:1.4;
+  }
+  .msg-pronunciation {
+    font-size:.78rem; color:var(--terra); font-style:italic; margin-bottom:4px;
+  }
+  .msg-english {
+    font-size:.78rem; color:var(--text3); line-height:1.4;
+  }
+  .msg-context {
+    font-size:.68rem; color:var(--text3); margin-top:6px;
+    padding-top:6px; border-top:1px solid var(--border-light);
+    font-style:italic;
+  }
+  .msg-hidden { display:none; }
+  .msg-revealed { display:block; animation:fadeUp .3s ease; }
+
+  /* Score display */
+  .score-bar {
+    margin-top:10px; padding-top:10px; border-top:1px solid var(--border-light);
+  }
+  .score-header {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:6px;
+  }
+  .score-label { font-size:.68rem; color:var(--text3); font-weight:500; }
+  .score-pct { font-size:.85rem; font-weight:700; }
+  .score-pct.green { color:var(--green); }
+  .score-pct.yellow { color:var(--yellow); }
+  .score-pct.red { color:var(--red); }
+
+  .score-track {
+    height:4px; background:var(--border-light); border-radius:2px;
+    overflow:hidden; margin-bottom:8px;
+  }
+  .score-fill {
+    height:100%; border-radius:2px; transition:width .4s ease;
+  }
+  .score-fill.green { background:var(--green); }
+  .score-fill.yellow { background:var(--yellow); }
+  .score-fill.red { background:var(--red); }
+
+  .word-compare {
+    display:flex; flex-wrap:wrap; gap:4px; font-size:.75rem;
+  }
+  .word-match { color:var(--green); font-weight:600; }
+  .word-miss { color:var(--red); font-weight:600; text-decoration:line-through; }
+  .word-expected { color:var(--text3); font-size:.68rem; }
+
+  /* Input area */
+  .input-area {
+    padding:16px 32px; border-top:1px solid var(--border);
+    background:var(--surface); display:flex; align-items:center; gap:12px;
+    max-width:720px; margin:0 auto; width:100%;
+  }
+  .mic-btn {
+    width:52px; height:52px; border-radius:50%; border:2px solid var(--terra);
+    background:var(--surface); cursor:pointer; display:flex;
+    align-items:center; justify-content:center; transition:all .2s;
+    flex-shrink:0;
+  }
+  .mic-btn:hover { background:var(--terra-light); }
+  .mic-btn.recording {
+    background:var(--terra); border-color:var(--terra);
+    animation:pulse 1.5s ease infinite;
+  }
+  .mic-btn svg { width:22px; height:22px; }
+  .mic-btn:not(.recording) svg { fill:var(--terra); }
+  .mic-btn.recording svg { fill:white; }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow:0 0 0 0 var(--terra-glow); }
+    50% { box-shadow:0 0 0 10px transparent; }
+  }
+
+  .input-hint {
+    font-size:.78rem; color:var(--text3); flex:1;
+  }
+  .input-hint strong { color:var(--text2); }
+
+  .skip-btn {
+    padding:8px 16px; border-radius:8px; border:1px solid var(--border);
+    background:none; font-family:'DM Sans',sans-serif; font-size:.75rem;
+    color:var(--text3); cursor:pointer; transition:all .15s; flex-shrink:0;
+  }
+  .skip-btn:hover { border-color:var(--terra); color:var(--terra); }
+
+  .replay-btn {
+    padding:8px 12px; border-radius:8px; border:1px solid var(--border);
+    background:none; cursor:pointer; transition:all .15s; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .replay-btn:hover { border-color:var(--terra); }
+  .replay-btn svg { width:16px; height:16px; fill:var(--text3); }
+  .replay-btn:hover svg { fill:var(--terra); }
+
+  /* System messages */
+  .system-msg {
+    text-align:center; font-size:.72rem; color:var(--text3);
+    padding:8px 16px; animation:fadeUp .3s ease;
+  }
+  .system-msg .scenario-name { color:var(--terra); font-weight:600; }
+
+  /* Empty state */
+  .empty-state {
+    flex:1; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; text-align:center; padding:40px;
+  }
+  .empty-state h2 {
+    font-family:'Fraunces',serif; font-size:1.2rem; color:var(--text);
+    margin-bottom:8px;
+  }
+  .empty-state p { font-size:.8rem; color:var(--text3); max-width:320px; }
+
+  /* Summary card */
+  .summary-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); padding:20px 24px; margin:12px 0;
+    animation:fadeUp .3s ease;
+  }
+  .summary-card h3 {
+    font-family:'Fraunces',serif; font-size:1rem; font-weight:600;
+    color:var(--text); margin-bottom:12px;
+  }
+  .summary-stat {
+    display:flex; justify-content:space-between; padding:6px 0;
+    font-size:.8rem; border-bottom:1px solid var(--border-light);
+  }
+  .summary-stat:last-child { border-bottom:none; }
+  .summary-stat-label { color:var(--text2); }
+  .summary-stat-value { font-weight:600; color:var(--text); }
+
+  /* Notification toast */
+  .toast {
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:var(--text); color:white; padding:10px 20px; border-radius:8px;
+    font-size:.78rem; font-weight:500; opacity:0; transition:opacity .3s;
+    z-index:100; pointer-events:none;
+  }
+  .toast.show { opacity:1; }
+
+  /* Mobile hamburger */
+  .mobile-header {
+    display:none; position:fixed; top:0; left:0; right:0; z-index:25;
+    background:var(--bg-warm); border-bottom:1px solid var(--border);
+    padding:12px 16px; align-items:center; gap:12px;
+  }
+  .hamburger {
+    width:36px; height:36px; border:none; background:none; cursor:pointer;
+    display:flex; flex-direction:column; justify-content:center; gap:5px; padding:4px;
+  }
+  .hamburger span { display:block; width:100%; height:2px; background:var(--text); border-radius:2px; transition:all .2s; }
+  .hamburger.open span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+  .hamburger.open span:nth-child(2) { opacity:0; }
+  .hamburger.open span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+  .mobile-header .logo { font-family:'Fraunces',serif; font-weight:700; color:var(--terra); font-size:1rem; flex:1; }
+  .sidebar-overlay {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,.3); z-index:19;
+  }
+  .sidebar-overlay.show { display:block; }
+
+  @media (max-width:900px) {
+    .mobile-header { display:flex; }
+    .sidebar {
+      transform:translateX(-100%); transition:transform .3s ease;
+      z-index:21; box-shadow:4px 0 20px rgba(0,0,0,.1);
+    }
+    .sidebar.open { transform:translateX(0); }
+    .main { margin-left:0; padding-top:64px; }
+    .reference-panel { padding:16px 14px; }
+    .chat-area { padding:14px; }
+    .input-area { padding:10px 14px; }
+    .practice-controls { padding:10px 14px; }
+    .controls { top:0; border-radius:0; margin-left:-14px; margin-right:-14px; padding:10px 14px; }
+    .phrase-row { padding:12px 10px; gap:10px; }
+    .play-btn, .drill-btn { width:40px; height:40px; min-width:40px; }
+    .spanish { font-size:1rem; }
+    .mode-tabs button { padding:10px 20px; font-size:.85rem; }
+    .section-title { font-size:.9rem; }
+    .dialect-selector { flex-direction:column; }
+    .dialect-btn { border-right:none; border-bottom:1px solid var(--border); }
+    .dialect-btn:last-child { border-bottom:none; }
+  }
+
+  @media (max-width:480px) {
+    .phrase-row { flex-wrap:wrap; }
+    .btn-group { order:-1; }
+    .phrase-text { width:100%; }
+    .convo-line { flex-wrap:wrap; gap:6px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="mobile-header">
+  <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="logo">ELENA'S SPANISH TUTOR</div>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileMenu()"></div>
+
+<nav class="sidebar" id="sidebar">
+  <div class="logo">ELENA'S SPANISH TUTOR</div>
+
+  <!-- Reference sidebar nav -->
+  <div class="reference-sidebar-content" id="refSidebarContent">
+    <div class="nav-group">
+      <div class="nav-group-title" onclick="toggleGroup(this)">Phrases <span class="arrow">&#9660;</span></div>
+      <div class="nav-links">
+        <a href="#greetings" onclick="goTo(event,'greetings')">Greetings</a>
+        <a href="#responses" onclick="goTo(event,'responses')">Responses</a>
+        <a href="#introductions" onclick="goTo(event,'introductions')">Introductions</a>
+        <a href="#where-from" onclick="goTo(event,'where-from')">Where You're From</a>
+        <a href="#work" onclick="goTo(event,'work')">Work & Life</a>
+        <a href="#your-day" onclick="goTo(event,'your-day')">Your Day</a>
+        <a href="#opinions" onclick="goTo(event,'opinions')">Opinions & Reactions</a>
+        <a href="#compliments" onclick="goTo(event,'compliments')">Compliments & Friendly</a>
+        <a href="#banter" onclick="goTo(event,'banter')">Banter & Trash Talk</a>
+        <a href="#questions" onclick="goTo(event,'questions')">Questions</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title" onclick="toggleGroup(this)">Vocab <span class="arrow">&#9660;</span></div>
+      <div class="nav-links">
+        <a href="#food-drink" onclick="goTo(event,'food-drink')">Food & Drink</a>
+        <a href="#numbers" onclick="goTo(event,'numbers')">Numbers 1-10</a>
+        <a href="#time" onclick="goTo(event,'time')">Time</a>
+        <a href="#directions" onclick="goTo(event,'directions')">Getting Around</a>
+        <a href="#glue" onclick="goTo(event,'glue')">Glue Words</a>
+        <a href="#goodbyes" onclick="goTo(event,'goodbyes')">Goodbyes</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title" onclick="toggleGroup(this)">Conversations <span class="arrow">&#9660;</span></div>
+      <div class="nav-links">
+        <a href="#convo1" onclick="goTo(event,'convo1')">Meeting Someone New</a>
+        <a href="#convo2" onclick="goTo(event,'convo2')">At a Restaurant</a>
+        <a href="#convo3" onclick="goTo(event,'convo3')">Casual Catch-Up</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Practice sidebar nav -->
+  <div class="practice-sidebar-content" id="pracSidebarContent">
+    <div class="sidebar-section-title" style="padding:8px 22px 6px;font-size:.6rem;text-transform:uppercase;letter-spacing:1.8px;color:var(--text3);font-weight:600;">Level</div>
+    <div class="level-selector" id="levelSelector">
+      <button class="level-btn active" data-level="1" onclick="setLevel(1)">Ultra Beginner<span class="level-label">Spanish + pronunciation + English</span></button>
+      <button class="level-btn" data-level="2" onclick="setLevel(2)">Medium<span class="level-label">Spanish + pronunciation (English after)</span></button>
+      <button class="level-btn" data-level="3" onclick="setLevel(3)">Advanced<span class="level-label">Spanish only (all revealed after)</span></button>
+    </div>
+
+    <div class="sidebar-section-title" style="padding:8px 22px 6px;font-size:.6rem;text-transform:uppercase;letter-spacing:1.8px;color:var(--text3);font-weight:600;margin-top:8px;">Scenarios</div>
+    <div class="scenario-list" id="scenarioList"></div>
+
+    <div class="tracker-section">
+      <h3>Weak Phrases</h3>
+      <div class="tracker-list" id="trackerList">
+        <div style="font-size:.7rem;color:var(--text3);padding:8px 0;">No phrases practiced yet</div>
+      </div>
+    </div>
+
+    <div class="stats-panel">
+      <h3>Today's Progress</h3>
+      <div class="stat-row">
+        <span class="stat-label">Phrases</span>
+        <span class="stat-value" id="statPhrases">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Accuracy</span>
+        <span class="stat-value accent" id="statAccuracy">&mdash;</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Streak</span>
+        <span class="stat-value" id="statStreak">0</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="main" id="mainContent">
+
+  <!-- MODE TABS -->
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tabReference" onclick="switchMode('reference')">Reference</button>
+    <button class="mode-tab" id="tabPractice" onclick="switchMode('practice')">Practice</button>
+  </div>
+
+  <!-- ============ REFERENCE PANEL ============ -->
+  <div class="reference-panel" id="referencePanel">
+    <div class="main-header">
+      <h1>Elena's Spanish Tutor</h1>
+      <p>&#9654; play full phrase &nbsp;&middot;&nbsp; A&#8594;Z drill word-by-word with pause to repeat</p>
+    </div>
+
+    <!-- Dialect Selector -->
+    <div class="dialect-selector" id="dialectSelector">
+      <button class="dialect-btn active" data-dialect="mx" onclick="setDialect('mx')"><span class="dialect-flag">&#127474;&#127485;</span> Mexican</button>
+      <button class="dialect-btn" data-dialect="sa" onclick="setDialect('sa')"><span class="dialect-flag">&#127462;&#127479;</span> South American</button>
+      <button class="dialect-btn" data-dialect="es" onclick="setDialect('es')"><span class="dialect-flag">&#127466;&#127480;</span> Spain</button>
+    </div>
+    <div class="dialect-note" id="dialectNote">Mexican Spanish -- the most widely spoken dialect. Uses "tu" and regional slang like "guey" and "orale."</div>
+
+    <div class="controls" id="refControls">
+      <label>Speed</label>
+      <input type="range" id="speedSlider" min="0.3" max="1.2" step="0.1" value="0.75">
+      <span class="speed-val" id="speedValue">0.75x</span>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot r"></div>Play</div>
+        <div class="legend-item"><div class="legend-dot c"></div>Drill</div>
+      </div>
+    </div>
+
+    <!-- GREETINGS -->
+    <div class="section" id="greetings"><div class="section-title">Greetings</div>
+      <div class="phrase-row" data-spa="Hola" data-syl="Ho|la" data-pron="OH-lah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Hola</span><span class="pronunciation">OH-lah</span><span class="english">Hi / Hello</span></div></div>
+      <div class="phrase-row" data-spa="Buenos dias" data-syl="Bue|nos|di|as" data-pron="BWEH-nohs DEE-ahs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Buenos dias</span><span class="pronunciation">BWEH-nohs DEE-ahs</span><span class="english">Good morning</span></div></div>
+      <div class="phrase-row" data-spa="Buenas tardes" data-syl="Bue|nas|tar|des" data-pron="BWEH-nahs TAR-dehs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Buenas tardes</span><span class="pronunciation">BWEH-nahs TAR-dehs</span><span class="english">Good afternoon</span></div></div>
+      <div class="phrase-row" data-spa="Buenas noches" data-syl="Bue|nas|no|ches" data-pron="BWEH-nahs NOH-chehs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Buenas noches</span><span class="pronunciation">BWEH-nahs NOH-chehs</span><span class="english">Good evening / Good night</span></div></div>
+      <div class="phrase-row" data-dialect="mx" data-spa="Que onda?" data-syl="Que|on|da" data-pron="keh OHN-dah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Que onda?</span><span class="pronunciation">keh OHN-dah?</span><span class="english">What's up?</span><span class="dialect-tag">MX</span></div></div>
+      <div class="phrase-row" data-dialect="sa" data-spa="Que haces?" data-syl="Que|ha|ces" data-pron="keh AH-sehs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Que haces?</span><span class="pronunciation">keh AH-sehs?</span><span class="english">What's up? / What are you doing?</span><span class="dialect-tag">SA</span></div></div>
+      <div class="phrase-row" data-dialect="es" data-spa="Que hay?" data-syl="Que|hay" data-pron="keh AH-ee"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Que hay?</span><span class="pronunciation">keh AH-ee?</span><span class="english">What's up?</span><span class="dialect-tag">ES</span></div></div>
+      <div class="phrase-row" data-spa="Que tal?" data-syl="Que|tal" data-pron="keh TAHL"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Que tal?</span><span class="pronunciation">keh TAHL?</span><span class="english">How's it going?</span></div></div>
+      <div class="phrase-row" data-dialect="sa" data-spa="Como andas?" data-syl="Co|mo|an|das" data-pron="KOH-moh ahn-DAHS"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Como andas?</span><span class="pronunciation">KOH-moh ahn-DAHS?</span><span class="english">How are you? (casual)</span><span class="dialect-tag">SA</span></div></div>
+      <div class="phrase-row" data-spa="Como estas?" data-syl="Co|mo|es|tas" data-pron="KOH-moh ehs-TAHS"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Como estas?</span><span class="pronunciation">KOH-moh ehs-TAHS?</span><span class="english">How are you?</span></div></div>
+    </div>
+
+    <!-- RESPONSES -->
+    <div class="section" id="responses"><div class="section-title">Responses</div>
+      <div class="phrase-row" data-spa="Bien" data-syl="Bien" data-pron="bee-EHN"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Bien</span><span class="pronunciation">bee-EHN</span><span class="english">Good / Well</span></div></div>
+      <div class="phrase-row" data-spa="Muy bien, gracias" data-syl="Muy|bien|gra|cias" data-pron="MOO-ee bee-EHN GRAH-see-ahs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Muy bien, gracias</span><span class="pronunciation">MOO-ee bee-EHN, GRAH-see-ahs</span><span class="english">Very well, thanks</span></div></div>
+      <div class="phrase-row" data-spa="Mas o menos" data-syl="Mas|o|me|nos" data-pron="mahs oh MEH-nohs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Mas o menos</span><span class="pronunciation">mahs oh MEH-nohs</span><span class="english">More or less / So-so</span></div></div>
+      <div class="phrase-row" data-spa="Todo bien" data-syl="To|do|bien" data-pron="TOH-doh bee-EHN"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Todo bien</span><span class="pronunciation">TOH-doh bee-EHN</span><span class="english">All good</span></div></div>
+      <div class="phrase-row" data-dialect="sa" data-spa="Ahi andamos" data-syl="A|hi|an|da|mos" data-pron="ah-EE ahn-DAH-mohs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Ahi andamos</span><span class="pronunciation">ah-EE ahn-DAH-mohs</span><span class="english">Getting by / Hanging in there</span><span class="dialect-tag">SA</span></div></div>
+      <div class="phrase-row" data-spa="Bien, y tu?" data-syl="Bien|y|tu" data-pron="bee-EHN ee TOO"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Bien, y tu?</span><span class="pronunciation">bee-EHN ee TOO?</span><span class="english">Good, and you?</span></div></div>
+      <div class="phrase-row" data-spa="No me quejo" data-syl="No|me|que|jo" data-pron="noh meh KEH-hoh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">No me quejo</span><span class="pronunciation">noh meh KEH-hoh</span><span class="english">Can't complain</span></div></div>
+      <div class="phrase-row" data-spa="Aqui nomas" data-syl="A|qui|no|mas" data-pron="ah-KEE noh-MAHS"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Aqui nomas</span><span class="pronunciation">ah-KEE noh-MAHS</span><span class="english">Just here / Chillin'</span></div></div>
+    </div>
+
+    <!-- INTRODUCTIONS -->
+    <div class="section" id="introductions"><div class="section-title">Introductions</div>
+      <div class="phrase-row" data-spa="Me llamo Elena" data-syl="Me|lla|mo|E|le|na" data-pron="meh YAH-moh eh-LEH-nah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Me llamo Elena</span><span class="pronunciation">meh YAH-moh eh-LEH-nah</span><span class="english">My name is Elena</span></div></div>
+      <div class="phrase-row" data-spa="Mucho gusto" data-syl="Mu|cho|gus|to" data-pron="MOO-choh GOOS-toh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Mucho gusto</span><span class="pronunciation">MOO-choh GOOS-toh</span><span class="english">Nice to meet you</span></div></div>
+      <div class="phrase-row" data-spa="Como te llamas?" data-syl="Co|mo|te|lla|mas" data-pron="KOH-moh teh YAH-mahs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Como te llamas?</span><span class="pronunciation">KOH-moh teh YAH-mahs?</span><span class="english">What's your name?</span></div></div>
+      <div class="phrase-row" data-spa="De donde eres?" data-syl="De|don|de|e|res" data-pron="deh DOHN-deh EH-rehs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">De donde eres?</span><span class="pronunciation">deh DOHN-deh EH-rehs?</span><span class="english">Where are you from?</span></div></div>
+      <div class="phrase-row" data-dialect="sa" data-spa="De donde sos?" data-syl="De|don|de|sos" data-pron="deh DOHN-deh sohs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">De donde sos?</span><span class="pronunciation">deh DOHN-deh sohs?</span><span class="english">Where are you from? (voseo)</span><span class="dialect-tag">SA</span></div></div>
+      <div class="phrase-row" data-spa="El gusto es mio" data-syl="El|gus|to|es|mi|o" data-pron="ehl GOOS-toh ehs MEE-oh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">El gusto es mio</span><span class="pronunciation">ehl GOOS-toh ehs MEE-oh</span><span class="english">The pleasure is mine</span></div></div>
+      <div class="phrase-row" data-spa="Encantado" data-syl="En|can|ta|do" data-pron="ehn-kahn-TAH-doh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Encantado / Encantada</span><span class="pronunciation">ehn-kahn-TAH-doh / ehn-kahn-TAH-dah</span><span class="english">Charmed / Delighted (m/f)</span></div></div>
+    </div>
+
+    <!-- WHERE FROM -->
+    <div class="section" id="where-from"><div class="section-title">Where You're From</div>
+      <div class="phrase-row" data-spa="Soy de Estados Unidos" data-syl="Soy|de|Es|ta|dos|U|ni|dos" data-pron="soy deh ehs-TAH-dohs oo-NEE-dohs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Soy de Estados Unidos</span><span class="pronunciation">soy deh ehs-TAH-dohs oo-NEE-dohs</span><span class="english">I'm from the United States</span></div></div>
+      <div class="phrase-row" data-spa="Soy de Chicago" data-syl="Soy|de|Chi|ca|go" data-pron="soy deh chee-KAH-goh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Soy de Chicago</span><span class="pronunciation">soy deh chee-KAH-goh</span><span class="english">I'm from Chicago</span></div></div>
+      <div class="phrase-row" data-spa="Vivo en..." data-syl="Vi|vo|en" data-pron="VEE-voh ehn"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Vivo en...</span><span class="pronunciation">VEE-voh ehn...</span><span class="english">I live in...</span></div></div>
+      <div class="phrase-row" data-spa="Me gusta mucho aqui" data-syl="Me|gus|ta|mu|cho|a|qui" data-pron="meh GOOS-tah MOO-choh ah-KEE"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Me gusta mucho aqui</span><span class="pronunciation">meh GOOS-tah MOO-choh ah-KEE</span><span class="english">I really like it here</span></div></div>
+      <div class="phrase-row" data-spa="Es mi primera vez aqui" data-syl="Es|mi|pri|me|ra|vez|a|qui" data-pron="ehs mee pree-MEH-rah vehs ah-KEE"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Es mi primera vez aqui</span><span class="pronunciation">ehs mee pree-MEH-rah vehs ah-KEE</span><span class="english">It's my first time here</span></div></div>
+      <div class="phrase-row" data-spa="Estoy de viaje" data-syl="Es|toy|de|via|je" data-pron="ehs-TOY deh vee-AH-heh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Estoy de viaje</span><span class="pronunciation">ehs-TOY deh vee-AH-heh</span><span class="english">I'm traveling</span></div></div>
+    </div>
+
+    <!-- WORK & LIFE -->
+    <div class="section" id="work"><div class="section-title">Work & Life</div>
+      <div class="phrase-row" data-spa="A que te dedicas?" data-syl="A|que|te|de|di|cas" data-pron="ah keh teh deh-DEE-kahs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">A que te dedicas?</span><span class="pronunciation">ah keh teh deh-DEE-kahs?</span><span class="english">What do you do for work?</span></div></div>
+      <div class="phrase-row" data-dialect="sa" data-spa="A que te dedicas?" data-syl="A|que|te|de|di|cas" data-pron="ah keh teh deh-dee-KAHS"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">A que te dedicas?</span><span class="pronunciation">ah keh teh deh-dee-KAHS?</span><span class="english">What do you do? (voseo form same)</span><span class="dialect-tag">SA</span></div></div>
+      <div class="phrase-row" data-spa="Soy empresario" data-syl="Soy|em|pre|sa|rio" data-pron="soy ehm-preh-SAH-ree-oh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Soy empresario</span><span class="pronunciation">soy ehm-preh-SAH-ree-oh</span><span class="english">I'm an entrepreneur</span></div></div>
+      <div class="phrase-row" data-spa="Trabajo en tecnologia" data-syl="Tra|ba|jo|en|tec|no|lo|gi|a" data-pron="trah-BAH-hoh ehn tehk-noh-loh-HEE-ah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Trabajo en tecnologia</span><span class="pronunciation">trah-BAH-hoh ehn tehk-noh-loh-HEE-ah</span><span class="english">I work in tech</span></div></div>
+      <div class="phrase-row" data-spa="Tengo mi propio negocio" data-syl="Ten|go|mi|pro|pio|ne|go|cio" data-pron="TEHN-goh mee PROH-pee-oh neh-GOH-see-oh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Tengo mi propio negocio</span><span class="pronunciation">TEHN-goh mee PROH-pee-oh neh-GOH-see-oh</span><span class="english">I have my own business</span></div></div>
+      <div class="phrase-row" data-spa="Me gusta mi trabajo" data-syl="Me|gus|ta|mi|tra|ba|jo" data-pron="meh GOOS-tah mee trah-BAH-hoh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Me gusta mi trabajo</span><span class="pronunciation">meh GOOS-tah mee trah-BAH-hoh</span><span class="english">I like my work</span></div></div>
+      <div class="phrase-row" data-dialect="mx" data-spa="Le echo ganas" data-syl="Le|e|cho|ga|nas" data-pron="leh EH-choh GAH-nahs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Le echo ganas</span><span class="pronunciation">leh EH-choh GAH-nahs</span><span class="english">I hustle / I give it my all</span><span class="dialect-tag">MX</span></div></div>
+    </div>
+
+    <!-- YOUR DAY -->
+    <div class="section" id="your-day"><div class="section-title">Your Day</div>
+      <div class="phrase-row" data-spa="Acabo de comer" data-syl="A|ca|bo|de|co|mer" data-pron="ah-KAH-boh deh koh-MEHR"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Acabo de comer</span><span class="pronunciation">ah-KAH-boh deh koh-MEHR</span><span class="english">I just ate</span></div></div>
+      <div class="phrase-row" data-spa="Hoy fue un buen dia" data-syl="Hoy|fue|un|buen|di|a" data-pron="oy fweh oon bwehn DEE-ah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Hoy fue un buen dia</span><span class="pronunciation">oy fweh oon bwehn DEE-ah</span><span class="english">Today was a good day</span></div></div>
+      <div class="phrase-row" data-spa="Estoy cansado" data-syl="Es|toy|can|sa|do" data-pron="ehs-TOY kahn-SAH-doh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Estoy cansado</span><span class="pronunciation">ehs-TOY kahn-SAH-doh</span><span class="english">I'm tired</span></div></div>
+      <div class="phrase-row" data-spa="Nada especial" data-syl="Na|da|es|pe|cial" data-pron="NAH-dah ehs-peh-see-AHL"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Nada especial</span><span class="pronunciation">NAH-dah ehs-peh-see-AHL</span><span class="english">Nothing special</span></div></div>
+      <div class="phrase-row" data-spa="Estoy trabajando mucho" data-syl="Es|toy|tra|ba|jan|do|mu|cho" data-pron="ehs-TOY trah-bah-HAHN-doh MOO-choh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Estoy trabajando mucho</span><span class="pronunciation">ehs-TOY trah-bah-HAHN-doh MOO-choh</span><span class="english">I've been working a lot</span></div></div>
+      <div class="phrase-row" data-spa="Hoy descanse todo el dia" data-syl="Hoy|des|can|se|to|do|el|di|a" data-pron="oy dehs-kahn-SEH toh-doh ehl DEE-ah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Hoy descanse todo el dia</span><span class="pronunciation">oy dehs-kahn-SEH toh-doh ehl DEE-ah</span><span class="english">I rested all day today</span></div></div>
+    </div>
+
+    <!-- OPINIONS & REACTIONS -->
+    <div class="section" id="opinions"><div class="section-title">Opinions & Reactions</div>
+      <div class="phrase-row" data-spa="Me gusta" data-syl="Me|gus|ta" data-pron="meh GOOS-tah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Me gusta</span><span class="pronunciation">meh GOOS-tah</span><span class="english">I like it</span></div></div>
+      <div class="phrase-row" data-spa="No me gusta" data-syl="No|me|gus|ta" data-pron="noh meh GOOS-tah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">No me gusta</span><span class="pronunciation">noh meh GOOS-tah</span><span class="english">I don't like it</span></div></div>
+      <div class="phrase-row" data-dialect="mx" data-spa="Esta padre!" data-syl="Es|ta|pa|dre" data-pron="ehs-TAH PAH-dreh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Esta padre!</span><span class="pronunciation">ehs-TAH PAH-dreh!</span><span class="english">That's cool! / Awesome!</span><span class="dialect-tag">MX</span></div></div>
+      <div class="phrase-row" data-dialect="sa" data-spa="Que copado!" data-syl="Que|co|pa|do" data-pron="keh koh-PAH-doh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Que copado!</span><span class="pronunciation">keh koh-PAH-doh!</span><span class="english">That's awesome!</span><span class="dialect-tag">SA</span></div></div>
+      <div class="phrase-row" data-dialect="es" data-spa="Mola!" data-syl="Mo|la" data-pron="MOH-lah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Mola!</span><span class="pronunciation">MOH-lah!</span><span class="english">That's cool!</span><span class="dialect-tag">ES</span></div></div>
+      <div class="phrase-row" data-spa="En serio?" data-syl="En|se|rio" data-pron="ehn SEH-ree-oh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">En serio?</span><span class="pronunciation">ehn SEH-ree-oh?</span><span class="english">Seriously?</span></div></div>
+      <div class="phrase-row" data-spa="Estoy de acuerdo" data-syl="Es|toy|de|a|cuer|do" data-pron="ehs-TOY deh ah-KWEHR-doh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Estoy de acuerdo</span><span class="pronunciation">ehs-TOY deh ah-KWEHR-doh</span><span class="english">I agree</span></div></div>
+      <div class="phrase-row" data-spa="Que bueno!" data-syl="Que|bue|no" data-pron="keh BWEH-noh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Que bueno!</span><span class="pronunciation">keh BWEH-noh!</span><span class="english">Great! / How nice!</span></div></div>
+    </div>
+
+    <!-- COMPLIMENTS & FRIENDLY -->
+    <div class="section" id="compliments"><div class="section-title">Compliments & Friendly Phrases</div>
+      <div class="phrase-row" data-spa="Eres hermosa" data-syl="E|res|her|mo|sa" data-pron="EH-rehs ehr-MOH-sah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Eres hermosa</span><span class="pronunciation">EH-rehs ehr-MOH-sah</span><span class="english">You're beautiful</span></div></div>
+      <div class="phrase-row" data-dialect="sa" data-spa="Sos hermosa" data-syl="Sos|her|mo|sa" data-pron="sohs ehr-MOH-sah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Sos hermosa</span><span class="pronunciation">sohs ehr-MOH-sah</span><span class="english">You're beautiful (voseo)</span><span class="dialect-tag">SA</span></div></div>
+      <div class="phrase-row" data-spa="Te extrane" data-syl="Te|ex|tra|ne" data-pron="teh ehks-trah-NYEH"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Te extrane</span><span class="pronunciation">teh ehks-trah-NYEH</span><span class="english">I missed you</span></div></div>
+      <div class="phrase-row" data-spa="Que bueno verte" data-syl="Que|bue|no|ver|te" data-pron="keh BWEH-noh VEHR-teh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Que bueno verte</span><span class="pronunciation">keh BWEH-noh VEHR-teh</span><span class="english">Good to see you</span></div></div>
+      <div class="phrase-row" data-spa="Te quiero" data-syl="Te|quie|ro" data-pron="teh kee-EH-roh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Te quiero</span><span class="pronunciation">teh kee-EH-roh</span><span class="english">I love you (warmly)</span></div></div>
+      <div class="phrase-row" data-spa="Te amo" data-syl="Te|a|mo" data-pron="teh AH-moh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Te amo</span><span class="pronunciation">teh AH-moh</span><span class="english">I love you (deeply)</span></div></div>
+      <div class="phrase-row" data-spa="Eres increible" data-syl="E|res|in|cre|i|ble" data-pron="EH-rehs een-kreh-EE-bleh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Eres increible</span><span class="pronunciation">EH-rehs een-kreh-EE-bleh</span><span class="english">You're incredible</span></div></div>
+      <div class="phrase-row" data-spa="Me haces feliz" data-syl="Me|ha|ces|fe|liz" data-pron="meh AH-sehs feh-LEES"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Me haces feliz</span><span class="pronunciation">meh AH-sehs feh-LEES</span><span class="english">You make me happy</span></div></div>
+    </div>
+
+    <!-- BANTER & TRASH TALK -->
+    <div class="section" id="banter"><div class="section-title">Banter, Slang & Trash Talk</div>
+      <div class="phrase-row" data-dialect="mx" data-spa="No mames!" data-syl="No|ma|mes" data-pron="noh MAH-mehs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">No mames!</span><span class="pronunciation">noh MAH-mehs!</span><span class="english">No way! / You're kidding! (MX vulgar)</span><span class="dialect-tag">MX</span></div></div>
+      <div class="phrase-row" data-dialect="mx" data-spa="Guey" data-syl="Guey" data-pron="wey"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Guey</span><span class="pronunciation">wey</span><span class="english">Dude / Bro (MX slang)</span><span class="dialect-tag">MX</span></div></div>
+      <div class="phrase-row" data-dialect="sa" data-spa="Boludo" data-syl="Bo|lu|do" data-pron="boh-LOO-doh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Boludo</span><span class="pronunciation">boh-LOO-doh</span><span class="english">Dude / Idiot (Argentine, friendly)</span><span class="dialect-tag">SA</span></div></div>
+      <div class="phrase-row" data-dialect="es" data-spa="Tio / Tia" data-syl="Ti|o" data-pron="TEE-oh / TEE-ah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Tio / Tia</span><span class="pronunciation">TEE-oh / TEE-ah</span><span class="english">Dude / Girl (Spain slang)</span><span class="dialect-tag">ES</span></div></div>
+      <div class="phrase-row" data-spa="Chingado!" data-syl="Chin|ga|do" data-pron="cheen-GAH-doh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Chingado!</span><span class="pronunciation">cheen-GAH-doh!</span><span class="english">F*ck! / Damn! (very strong)</span></div></div>
+      <div class="phrase-row" data-spa="Carajo!" data-syl="Ca|ra|jo" data-pron="kah-RAH-hoh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Carajo!</span><span class="pronunciation">kah-RAH-hoh!</span><span class="english">Damn it! / F*ck!</span></div></div>
+      <div class="phrase-row" data-dialect="es" data-spa="Cono!" data-syl="Co|no" data-pron="KOH-nyoh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Cono!</span><span class="pronunciation">KOH-nyoh!</span><span class="english">Damn! (Spain, very common)</span><span class="dialect-tag">ES</span></div></div>
+      <div class="phrase-row" data-dialect="sa" data-spa="La puta madre!" data-syl="La|pu|ta|ma|dre" data-pron="lah POO-tah MAH-dreh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">La puta madre!</span><span class="pronunciation">lah POO-tah MAH-dreh!</span><span class="english">Son of a b*tch! / Holy sh*t!</span><span class="dialect-tag">SA</span></div></div>
+      <div class="phrase-row" data-spa="Que demonios?" data-syl="Que|de|mo|nios" data-pron="keh deh-MOH-nee-ohs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Que demonios?</span><span class="pronunciation">keh deh-MOH-nee-ohs?</span><span class="english">What the hell?</span></div></div>
+      <div class="phrase-row" data-spa="Callate!" data-syl="Ca|lla|te" data-pron="KAH-yah-teh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Callate!</span><span class="pronunciation">KAH-yah-teh!</span><span class="english">Shut up!</span></div></div>
+      <div class="phrase-row" data-spa="Estoy bromeando!" data-syl="Es|toy|bro|me|an|do" data-pron="ehs-TOY broh-meh-AHN-doh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Estoy bromeando!</span><span class="pronunciation">ehs-TOY broh-meh-AHN-doh!</span><span class="english">I'm joking!</span></div></div>
+      <div class="phrase-row" data-spa="No seas pesado" data-syl="No|se|as|pe|sa|do" data-pron="noh SEH-ahs peh-SAH-doh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">No seas pesado</span><span class="pronunciation">noh SEH-ahs peh-SAH-doh</span><span class="english">Don't be annoying</span></div></div>
+    </div>
+
+    <!-- QUESTIONS -->
+    <div class="section" id="questions"><div class="section-title">Questions</div>
+      <div class="phrase-row" data-spa="Que es esto?" data-syl="Que|es|es|to" data-pron="keh ehs EHS-toh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Que es esto?</span><span class="pronunciation">keh ehs EHS-toh?</span><span class="english">What is this?</span></div></div>
+      <div class="phrase-row" data-spa="Por que?" data-syl="Por|que" data-pron="por KEH"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Por que?</span><span class="pronunciation">por KEH?</span><span class="english">Why?</span></div></div>
+      <div class="phrase-row" data-spa="Cuanto cuesta?" data-syl="Cuan|to|cues|ta" data-pron="KWAHN-toh KWEHS-tah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Cuanto cuesta?</span><span class="pronunciation">KWAHN-toh KWEHS-tah?</span><span class="english">How much does it cost?</span></div></div>
+      <div class="phrase-row" data-spa="Hablas ingles?" data-syl="Ha|blas|in|gles" data-pron="AH-blahs een-GLEHS"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Hablas ingles?</span><span class="pronunciation">AH-blahs een-GLEHS?</span><span class="english">Do you speak English?</span></div></div>
+      <div class="phrase-row" data-spa="Hablo un poco de espanol" data-syl="Ha|blo|un|po|co|de|es|pa|nol" data-pron="AH-bloh oon POH-koh deh ehs-pah-NYOL"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Hablo un poco de espanol</span><span class="pronunciation">AH-bloh oon POH-koh deh ehs-pah-NYOL</span><span class="english">I speak a little Spanish</span></div></div>
+      <div class="phrase-row" data-spa="No entiendo" data-syl="No|en|tien|do" data-pron="noh ehn-tee-EHN-doh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">No entiendo</span><span class="pronunciation">noh ehn-tee-EHN-doh</span><span class="english">I don't understand</span></div></div>
+      <div class="phrase-row" data-spa="Puedes repetir?" data-syl="Pue|des|re|pe|tir" data-pron="PWEH-dehs reh-peh-TEER"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Puedes repetir?</span><span class="pronunciation">PWEH-dehs reh-peh-TEER?</span><span class="english">Can you repeat that?</span></div></div>
+      <div class="phrase-row" data-spa="Donde esta el bano?" data-syl="Don|de|es|ta|el|ba|no" data-pron="DOHN-deh ehs-TAH ehl BAH-nyoh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Donde esta el bano?</span><span class="pronunciation">DOHN-deh ehs-TAH ehl BAH-nyoh?</span><span class="english">Where's the bathroom?</span></div></div>
+    </div>
+
+    <!-- FOOD & DRINK -->
+    <div class="section" id="food-drink"><div class="section-title">Food & Drink</div>
+      <div class="phrase-row" data-spa="Quiero un cafe" data-syl="Quie|ro|un|ca|fe" data-pron="kee-EH-roh oon kah-FEH"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Quiero un cafe</span><span class="pronunciation">kee-EH-roh oon kah-FEH</span><span class="english">I want a coffee</span></div></div>
+      <div class="phrase-row" data-spa="Agua, por favor" data-syl="A|gua|por|fa|vor" data-pron="AH-gwah por fah-VOR"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Agua, por favor</span><span class="pronunciation">AH-gwah, por fah-VOR</span><span class="english">Water, please</span></div></div>
+      <div class="phrase-row" data-spa="Esta delicioso!" data-syl="Es|ta|de|li|cio|so" data-pron="ehs-TAH deh-lee-see-OH-soh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Esta delicioso!</span><span class="pronunciation">ehs-TAH deh-lee-see-OH-soh!</span><span class="english">It's delicious!</span></div></div>
+      <div class="phrase-row" data-spa="La cuenta, por favor" data-syl="La|cuen|ta|por|fa|vor" data-pron="lah KWEHN-tah por fah-VOR"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">La cuenta, por favor</span><span class="pronunciation">lah KWEHN-tah, por fah-VOR</span><span class="english">The check, please</span></div></div>
+      <div class="phrase-row" data-spa="Salud!" data-syl="Sa|lud" data-pron="sah-LOOD"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Salud!</span><span class="pronunciation">sah-LOOD!</span><span class="english">Cheers!</span></div></div>
+      <div class="phrase-row" data-spa="Que me recomiendas?" data-syl="Que|me|re|co|mien|das" data-pron="keh meh reh-koh-mee-EHN-dahs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Que me recomiendas?</span><span class="pronunciation">keh meh reh-koh-mee-EHN-dahs?</span><span class="english">What do you recommend?</span></div></div>
+      <div class="phrase-row" data-spa="Una cerveza, por favor" data-syl="U|na|cer|ve|za|por|fa|vor" data-pron="OO-nah sehr-VEH-sah por fah-VOR"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Una cerveza, por favor</span><span class="pronunciation">OO-nah sehr-VEH-sah, por fah-VOR</span><span class="english">A beer, please</span></div></div>
+    </div>
+
+    <!-- NUMBERS 1-10 -->
+    <div class="section" id="numbers"><div class="section-title">Numbers 1-10</div>
+      <div class="phrase-row" data-spa="uno" data-syl="u|no" data-pron="OO-noh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">uno</span><span class="pronunciation">OO-noh</span><span class="english">1</span></div></div>
+      <div class="phrase-row" data-spa="dos" data-syl="dos" data-pron="dohs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">dos</span><span class="pronunciation">dohs</span><span class="english">2</span></div></div>
+      <div class="phrase-row" data-spa="tres" data-syl="tres" data-pron="trehs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">tres</span><span class="pronunciation">trehs</span><span class="english">3</span></div></div>
+      <div class="phrase-row" data-spa="cuatro" data-syl="cua|tro" data-pron="KWAH-troh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">cuatro</span><span class="pronunciation">KWAH-troh</span><span class="english">4</span></div></div>
+      <div class="phrase-row" data-spa="cinco" data-syl="cin|co" data-pron="SEEN-koh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">cinco</span><span class="pronunciation">SEEN-koh</span><span class="english">5</span></div></div>
+      <div class="phrase-row" data-spa="seis" data-syl="seis" data-pron="seys"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">seis</span><span class="pronunciation">seys</span><span class="english">6</span></div></div>
+      <div class="phrase-row" data-spa="siete" data-syl="sie|te" data-pron="see-EH-teh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">siete</span><span class="pronunciation">see-EH-teh</span><span class="english">7</span></div></div>
+      <div class="phrase-row" data-spa="ocho" data-syl="o|cho" data-pron="OH-choh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">ocho</span><span class="pronunciation">OH-choh</span><span class="english">8</span></div></div>
+      <div class="phrase-row" data-spa="nueve" data-syl="nue|ve" data-pron="NWEH-veh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">nueve</span><span class="pronunciation">NWEH-veh</span><span class="english">9</span></div></div>
+      <div class="phrase-row" data-spa="diez" data-syl="diez" data-pron="dee-EHS"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">diez</span><span class="pronunciation">dee-EHS</span><span class="english">10</span></div></div>
+    </div>
+
+    <!-- TIME -->
+    <div class="section" id="time"><div class="section-title">Time</div>
+      <div class="phrase-row" data-spa="Ahora" data-syl="A|ho|ra" data-pron="ah-OH-rah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Ahora</span><span class="pronunciation">ah-OH-rah</span><span class="english">Now</span></div></div>
+      <div class="phrase-row" data-spa="Luego" data-syl="Lue|go" data-pron="LWEH-goh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Luego</span><span class="pronunciation">LWEH-goh</span><span class="english">Later</span></div></div>
+      <div class="phrase-row" data-spa="Manana" data-syl="Ma|na|na" data-pron="mah-NYAH-nah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Manana</span><span class="pronunciation">mah-NYAH-nah</span><span class="english">Tomorrow</span></div></div>
+      <div class="phrase-row" data-spa="Ayer" data-syl="A|yer" data-pron="ah-YEHR"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Ayer</span><span class="pronunciation">ah-YEHR</span><span class="english">Yesterday</span></div></div>
+      <div class="phrase-row" data-spa="Ahorita" data-syl="A|ho|ri|ta" data-pron="ah-oh-REE-tah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Ahorita</span><span class="pronunciation">ah-oh-REE-tah</span><span class="english">Right now / In a bit (context-dependent)</span></div></div>
+      <div class="phrase-row" data-spa="Siempre" data-syl="Siem|pre" data-pron="see-EHM-preh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Siempre</span><span class="pronunciation">see-EHM-preh</span><span class="english">Always</span></div></div>
+    </div>
+
+    <!-- GETTING AROUND -->
+    <div class="section" id="directions"><div class="section-title">Getting Around</div>
+      <div class="phrase-row" data-spa="Donde esta...?" data-syl="Don|de|es|ta" data-pron="DOHN-deh ehs-TAH"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Donde esta...?</span><span class="pronunciation">DOHN-deh ehs-TAH...?</span><span class="english">Where is...?</span></div></div>
+      <div class="phrase-row" data-spa="Izquierda" data-syl="Iz|quier|da" data-pron="ees-kee-EHR-dah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Izquierda</span><span class="pronunciation">ees-kee-EHR-dah</span><span class="english">Left</span></div></div>
+      <div class="phrase-row" data-spa="Derecha" data-syl="De|re|cha" data-pron="deh-REH-chah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Derecha</span><span class="pronunciation">deh-REH-chah</span><span class="english">Right</span></div></div>
+      <div class="phrase-row" data-spa="Derecho" data-syl="De|re|cho" data-pron="deh-REH-choh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Derecho</span><span class="pronunciation">deh-REH-choh</span><span class="english">Straight</span></div></div>
+      <div class="phrase-row" data-spa="Esta lejos?" data-syl="Es|ta|le|jos" data-pron="ehs-TAH LEH-hohs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Esta lejos?</span><span class="pronunciation">ehs-TAH LEH-hohs?</span><span class="english">Is it far?</span></div></div>
+      <div class="phrase-row" data-spa="Esta cerca" data-syl="Es|ta|cer|ca" data-pron="ehs-TAH SEHR-kah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Esta cerca</span><span class="pronunciation">ehs-TAH SEHR-kah</span><span class="english">It's close</span></div></div>
+    </div>
+
+    <!-- GLUE WORDS -->
+    <div class="section" id="glue"><div class="section-title">Glue Words</div>
+      <div class="phrase-row" data-spa="Si" data-syl="Si" data-pron="see"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Si</span><span class="pronunciation">see</span><span class="english">Yes</span></div></div>
+      <div class="phrase-row" data-spa="No" data-syl="No" data-pron="noh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">No</span><span class="pronunciation">noh</span><span class="english">No</span></div></div>
+      <div class="phrase-row" data-spa="Gracias" data-syl="Gra|cias" data-pron="GRAH-see-ahs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Gracias</span><span class="pronunciation">GRAH-see-ahs</span><span class="english">Thank you</span></div></div>
+      <div class="phrase-row" data-spa="Por favor" data-syl="Por|fa|vor" data-pron="por fah-VOR"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Por favor</span><span class="pronunciation">por fah-VOR</span><span class="english">Please</span></div></div>
+      <div class="phrase-row" data-spa="Claro" data-syl="Cla|ro" data-pron="KLAH-roh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Claro</span><span class="pronunciation">KLAH-roh</span><span class="english">Of course / Sure</span></div></div>
+      <div class="phrase-row" data-dialect="mx" data-spa="Orale" data-syl="O|ra|le" data-pron="OH-rah-leh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Orale</span><span class="pronunciation">OH-rah-leh</span><span class="english">Alright! / Right on! / Wow!</span><span class="dialect-tag">MX</span></div></div>
+      <div class="phrase-row" data-dialect="sa" data-spa="Dale" data-syl="Da|le" data-pron="DAH-leh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Dale</span><span class="pronunciation">DAH-leh</span><span class="english">OK / Go for it / Sure</span><span class="dialect-tag">SA</span></div></div>
+      <div class="phrase-row" data-dialect="es" data-spa="Vale" data-syl="Va|le" data-pron="VAH-leh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Vale</span><span class="pronunciation">VAH-leh</span><span class="english">OK / Sure / Alright</span><span class="dialect-tag">ES</span></div></div>
+      <div class="phrase-row" data-spa="Perdon" data-syl="Per|don" data-pron="pehr-DOHN"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Perdon</span><span class="pronunciation">pehr-DOHN</span><span class="english">Excuse me / Sorry</span></div></div>
+      <div class="phrase-row" data-spa="De nada" data-syl="De|na|da" data-pron="deh NAH-dah"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">De nada</span><span class="pronunciation">deh NAH-dah</span><span class="english">You're welcome</span></div></div>
+    </div>
+
+    <!-- GOODBYES -->
+    <div class="section" id="goodbyes"><div class="section-title">Goodbyes</div>
+      <div class="phrase-row" data-spa="Adios" data-syl="A|dios" data-pron="ah-dee-OHS"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Adios</span><span class="pronunciation">ah-dee-OHS</span><span class="english">Goodbye</span></div></div>
+      <div class="phrase-row" data-spa="Hasta luego" data-syl="Has|ta|lue|go" data-pron="AHS-tah LWEH-goh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Hasta luego</span><span class="pronunciation">AHS-tah LWEH-goh</span><span class="english">See you later</span></div></div>
+      <div class="phrase-row" data-spa="Nos vemos" data-syl="Nos|ve|mos" data-pron="nohs VEH-mohs"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Nos vemos</span><span class="pronunciation">nohs VEH-mohs</span><span class="english">See you</span></div></div>
+      <div class="phrase-row" data-spa="Cuidate" data-syl="Cui|da|te" data-pron="kwee-DAH-teh"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Cuidate</span><span class="pronunciation">kwee-DAH-teh</span><span class="english">Take care</span></div></div>
+      <div class="phrase-row" data-spa="Que te vaya bien" data-syl="Que|te|va|ya|bien" data-pron="keh teh VAH-yah bee-EHN"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Que te vaya bien</span><span class="pronunciation">keh teh VAH-yah bee-EHN</span><span class="english">Hope it goes well</span></div></div>
+      <div class="phrase-row" data-spa="Fue un placer" data-syl="Fue|un|pla|cer" data-pron="fweh oon plah-SEHR"><div class="btn-group"><button class="play-btn" onclick="speak(this)">&#9654;</button><button class="drill-btn" onclick="drill(this)">A&#8594;Z</button></div><div class="phrase-text"><span class="spanish">Fue un placer</span><span class="pronunciation">fweh oon plah-SEHR</span><span class="english">It was a pleasure</span></div></div>
+    </div>
+
+    <!-- CONVERSATIONS -->
+    <div class="section" id="convo1"><div class="section-title">Conversation -- Meeting Someone New</div>
+      <div class="convo-block">
+        <div class="convo-line"><span class="speaker you">YOU</span><div class="phrase-text"><span class="spanish">Hola! Como estas?</span><span class="english">Hi! How are you?</span></div><button class="play-btn" onclick="speakSpa('Hola! Como estas?',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker them">THEM</span><div class="phrase-text"><span class="spanish">Bien, gracias. Y tu?</span><span class="english">Good, thanks. And you?</span></div><button class="play-btn" onclick="speakSpa('Bien, gracias. Y tu?',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker you">YOU</span><div class="phrase-text"><span class="spanish">Muy bien! Me llamo Elena.</span><span class="english">Great! My name is Elena.</span></div><button class="play-btn" onclick="speakSpa('Muy bien! Me llamo Elena.',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker them">THEM</span><div class="phrase-text"><span class="spanish">Mucho gusto, Elena! Yo soy Carlos.</span><span class="english">Nice to meet you, Elena! I'm Carlos.</span></div><button class="play-btn" onclick="speakSpa('Mucho gusto, Elena! Yo soy Carlos.',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker you">YOU</span><div class="phrase-text"><span class="spanish">Soy de Estados Unidos. Me gusta mucho aqui!</span><span class="english">I'm from the United States. I love it here!</span></div><button class="play-btn" onclick="speakSpa('Soy de Estados Unidos. Me gusta mucho aqui!',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker them">THEM</span><div class="phrase-text"><span class="spanish">Que bueno! Hablas muy bien espanol!</span><span class="english">How nice! You speak Spanish very well!</span></div><button class="play-btn" onclick="speakSpa('Que bueno! Hablas muy bien espanol!',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker you">YOU</span><div class="phrase-text"><span class="spanish">Hablo un poco de espanol, estoy aprendiendo!</span><span class="english">I speak a little Spanish, I'm learning!</span></div><button class="play-btn" onclick="speakSpa('Hablo un poco de espanol, estoy aprendiendo!',this)">&#9654;</button></div>
+      </div>
+      <button class="play-all-btn" onclick="playConvo('convo1')">&#9654; Play Conversation</button>
+    </div>
+
+    <div class="section" id="convo2"><div class="section-title">Conversation -- At a Restaurant</div>
+      <div class="convo-block">
+        <div class="convo-line"><span class="speaker you">YOU</span><div class="phrase-text"><span class="spanish">Buenas tardes! Una mesa para dos, por favor.</span><span class="english">Good afternoon! A table for two, please.</span></div><button class="play-btn" onclick="speakSpa('Buenas tardes! Una mesa para dos, por favor.',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker them">THEM</span><div class="phrase-text"><span class="spanish">Claro, siganme. Aqui tienen el menu.</span><span class="english">Sure, follow me. Here's the menu.</span></div><button class="play-btn" onclick="speakSpa('Claro, siganme. Aqui tienen el menu.',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker you">YOU</span><div class="phrase-text"><span class="spanish">Que me recomiendas?</span><span class="english">What do you recommend?</span></div><button class="play-btn" onclick="speakSpa('Que me recomiendas?',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker them">THEM</span><div class="phrase-text"><span class="spanish">Los tacos al pastor estan muy buenos.</span><span class="english">The tacos al pastor are very good.</span></div><button class="play-btn" onclick="speakSpa('Los tacos al pastor estan muy buenos.',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker you">YOU</span><div class="phrase-text"><span class="spanish">Perfecto, quiero eso y un agua, por favor.</span><span class="english">Perfect, I want that and a water, please.</span></div><button class="play-btn" onclick="speakSpa('Perfecto, quiero eso y un agua, por favor.',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker you">YOU</span><div class="phrase-text"><span class="spanish">Esta delicioso! La cuenta, por favor.</span><span class="english">It's delicious! The check, please.</span></div><button class="play-btn" onclick="speakSpa('Esta delicioso! La cuenta, por favor.',this)">&#9654;</button></div>
+      </div>
+      <button class="play-all-btn" onclick="playConvo('convo2')">&#9654; Play Conversation</button>
+    </div>
+
+    <div class="section" id="convo3"><div class="section-title">Conversation -- Casual Catch-Up</div>
+      <div class="convo-block">
+        <div class="convo-line"><span class="speaker them">THEM</span><div class="phrase-text"><span class="spanish">Oye! Tanto tiempo sin verte!</span><span class="english">Hey! Long time no see!</span></div><button class="play-btn" onclick="speakSpa('Oye! Tanto tiempo sin verte!',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker you">YOU</span><div class="phrase-text"><span class="spanish">Si! Todo bien, trabajando mucho.</span><span class="english">Yeah! All good, working a lot.</span></div><button class="play-btn" onclick="speakSpa('Si! Todo bien, trabajando mucho.',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker them">THEM</span><div class="phrase-text"><span class="spanish">A que te dedicas ahora?</span><span class="english">What are you doing now?</span></div><button class="play-btn" onclick="speakSpa('A que te dedicas ahora?',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker you">YOU</span><div class="phrase-text"><span class="spanish">Soy empresario. Tengo mi propio negocio.</span><span class="english">I'm an entrepreneur. I have my own business.</span></div><button class="play-btn" onclick="speakSpa('Soy empresario. Tengo mi propio negocio.',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker them">THEM</span><div class="phrase-text"><span class="spanish">Que bueno! Salud, amigo!</span><span class="english">That's great! Cheers, friend!</span></div><button class="play-btn" onclick="speakSpa('Que bueno! Salud, amigo!',this)">&#9654;</button></div>
+        <div class="convo-line"><span class="speaker you">YOU</span><div class="phrase-text"><span class="spanish">Fue un placer! Nos vemos pronto!</span><span class="english">It was a pleasure! See you soon!</span></div><button class="play-btn" onclick="speakSpa('Fue un placer! Nos vemos pronto!',this)">&#9654;</button></div>
+      </div>
+      <button class="play-all-btn" onclick="playConvo('convo3')">&#9654; Play Conversation</button>
+    </div>
+  </div><!-- end reference-panel -->
+
+  <!-- ============ PRACTICE PANEL ============ -->
+  <div class="practice-panel" id="practicePanel">
+    <div class="practice-controls">
+      <label>Speed</label>
+      <input type="range" id="practiceSpeedSlider" min="0.3" max="1.5" step="0.1" value="0.8">
+      <span class="practice-speed-val" id="practiceSpeedVal">0.8x</span>
+      <label style="margin-left:12px;">Auto-play</label>
+      <button class="btn-sm" id="autoPlayBtn" onclick="toggleAutoPlay()">Off</button>
+      <div class="practice-controls-right">
+        <button class="btn-sm" onclick="resetProgress()">Reset Stats</button>
+      </div>
+    </div>
+    <div class="practice-dialect-selector" id="practiceDialectSelector">
+      <button class="practice-dialect-btn active" data-dialect="mx" onclick="setPracticeDialect('mx')">&#127474;&#127485; Mexican</button>
+      <button class="practice-dialect-btn" data-dialect="sa" onclick="setPracticeDialect('sa')">&#127462;&#127479; S. American</button>
+      <button class="practice-dialect-btn" data-dialect="es" onclick="setPracticeDialect('es')">&#127466;&#127480; Spain</button>
+    </div>
+
+    <div class="chat-area" id="chatArea">
+      <div class="empty-state" id="emptyState">
+        <h2>Pick a scenario to begin</h2>
+        <p>Select a conversation scenario from the sidebar, then practice speaking each phrase aloud.</p>
+      </div>
+    </div>
+
+    <div class="input-area" id="inputArea" style="display:none;">
+      <div class="replay-btn" onclick="replayCurrentPhrase()" title="Replay phrase">
+        <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+      </div>
+      <button class="mic-btn" id="micBtn" onclick="toggleRecording()">
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+      </button>
+      <div class="input-hint" id="inputHint">
+        <strong>Tap the mic</strong> and repeat the phrase
+      </div>
+      <button class="skip-btn" onclick="skipPhrase()">Skip &rarr;</button>
+    </div>
+  </div><!-- end practice-panel -->
+
+</div><!-- end main -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════
+//  DIALECT SYSTEM
+// ════════════════════════════════════════════════
+let currentDialect = 'mx';
+let practiceDialect = 'mx';
+
+const DIALECT_NOTES = {
+  mx: 'Mexican Spanish -- the most widely spoken dialect. Uses "tu" and regional slang like "guey" and "orale."',
+  sa: 'South American Spanish -- Argentine/Colombian style. Uses "vos" instead of "tu" and slang like "boludo" and "dale."',
+  es: 'Spain Spanish -- Peninsular dialect. Uses "vosotros" and slang like "vale," "mola," and "tio." Features ceceo/distincion.'
+};
+
+const DIALECT_VOICES = {
+  mx: 'es-MX',
+  sa: 'es-AR',
+  es: 'es-ES'
+};
+
+function setDialect(d) {
+  currentDialect = d;
+  document.querySelectorAll('.dialect-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.dialect-btn[data-dialect="${d}"]`).classList.add('active');
+  document.getElementById('dialectNote').textContent = DIALECT_NOTES[d];
+  filterPhrasesByDialect();
+}
+
+function setPracticeDialect(d) {
+  practiceDialect = d;
+  document.querySelectorAll('.practice-dialect-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.practice-dialect-btn[data-dialect="${d}"]`).classList.add('active');
+}
+
+function filterPhrasesByDialect() {
+  document.querySelectorAll('.phrase-row[data-dialect]').forEach(row => {
+    const rd = row.getAttribute('data-dialect');
+    if (!rd || rd === '') {
+      row.style.display = '';
+    } else if (rd === currentDialect) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+  // Universal phrases (no data-dialect) always show
+  document.querySelectorAll('.phrase-row:not([data-dialect])').forEach(row => {
+    row.style.display = '';
+  });
+}
+
+// Init dialect filter
+document.addEventListener('DOMContentLoaded', () => { filterPhrasesByDialect(); });
+
+
+// ════════════════════════════════════════════════
+//  REFERENCE MODE
+// ════════════════════════════════════════════════
+const speedSlider = document.getElementById('speedSlider');
+const speedValue = document.getElementById('speedValue');
+const mainContent = document.getElementById('mainContent');
+let drillActive = false;
+
+speedSlider.addEventListener('input', () => {
+  speedValue.textContent = parseFloat(speedSlider.value).toFixed(2) + 'x';
+});
+
+function toggleGroup(el) {
+  el.classList.toggle('collapsed');
+  el.nextElementSibling.classList.toggle('collapsed');
+}
+
+function goTo(e, id) {
+  e.preventDefault();
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+  e.target.classList.add('active');
+}
+
+// Scroll spy for reference mode
+const sections = document.querySelectorAll('.section[id]');
+const navLinks = document.querySelectorAll('.sidebar a');
+const refPanel = document.getElementById('referencePanel');
+
+mainContent.addEventListener('scroll', () => {
+  if (refPanel.classList.contains('hidden')) return;
+  let c = '';
+  sections.forEach(s => {
+    if (s.getBoundingClientRect().top < 200) c = s.id;
+  });
+  navLinks.forEach(a => {
+    a.classList.remove('active');
+    if (a.getAttribute('href') === '#' + c) a.classList.add('active');
+  });
+});
+
+function getEsVoice() {
+  const v = window.speechSynthesis.getVoices();
+  const langCode = DIALECT_VOICES[currentDialect] || 'es-MX';
+  return v.find(x => x.lang === langCode) || v.find(x => x.lang.startsWith('es')) || null;
+}
+
+function getPracticeVoice() {
+  const v = window.speechSynthesis.getVoices();
+  const langCode = DIALECT_VOICES[practiceDialect] || 'es-MX';
+  return v.find(x => x.lang === langCode) || v.find(x => x.lang.startsWith('es')) || null;
+}
+
+function pronChunks(text) {
+  return text.replace(/[.,!?;:]/g, '').split(/\s+/).filter(w => w.length > 0);
+}
+
+// PLAY: full phrase with real-time karaoke
+function speak(btn) {
+  if (drillActive) return;
+  window.speechSynthesis.cancel();
+  const row = btn.closest('.phrase-row');
+  const spaText = row.dataset.spa;
+  const spaEl = row.querySelector('.spanish');
+  const pronEl = row.querySelector('.pronunciation');
+  const engEl = row.querySelector('.english');
+  const origSpa = spaEl.textContent;
+  const origPron = pronEl.textContent;
+  const origEng = engEl.textContent;
+
+  const spaWords = origSpa.replace(/[.,!?;:]/g, ' ').split(/\s+/).filter(w => w.length > 0);
+  const pronWords = pronChunks(origPron);
+  const engWords = origEng.replace(/[.,!?;:]/g, ' ').split(/\s+/).filter(w => w.length > 0);
+  const pronPerSpa = pronWords.length / spaWords.length;
+  const engPerSpa = engWords.length / spaWords.length;
+
+  const langCode = DIALECT_VOICES[currentDialect] || 'es-MX';
+  const u = new SpeechSynthesisUtterance(spaText);
+  u.lang = langCode; u.rate = parseFloat(speedSlider.value);
+  const v = getEsVoice(); if (v) u.voice = v;
+  btn.classList.add('playing');
+
+  let wordIdx = -1;
+  u.onboundary = function(e) {
+    if (e.name === 'word') {
+      wordIdx++;
+      if (wordIdx >= spaWords.length) return;
+      let rhtml = '';
+      for (let j = 0; j < spaWords.length; j++) {
+        if (j > 0) rhtml += ' ';
+        if (j === wordIdx) rhtml += '<span style="color:var(--terra);font-weight:700">' + spaWords[j] + '</span>';
+        else if (j < wordIdx) rhtml += '<span style="color:var(--sage);opacity:.55">' + spaWords[j] + '</span>';
+        else rhtml += '<span style="opacity:.3">' + spaWords[j] + '</span>';
+      }
+      spaEl.innerHTML = rhtml;
+      const pronUpTo = Math.min(Math.ceil((wordIdx + 1) * pronPerSpa), pronWords.length);
+      let phtml = '';
+      for (let j = 0; j < pronWords.length; j++) {
+        if (j > 0) phtml += ' ';
+        if (j < pronUpTo) phtml += '<span style="color:var(--sage);font-weight:600;font-style:italic">' + pronWords[j] + '</span>';
+        else phtml += '<span style="opacity:.25;font-style:italic">' + pronWords[j] + '</span>';
+      }
+      pronEl.innerHTML = phtml;
+      const engUpTo = Math.min(Math.ceil((wordIdx + 1) * engPerSpa), engWords.length);
+      let ehtml = '';
+      for (let j = 0; j < engWords.length; j++) {
+        if (j > 0) ehtml += ' ';
+        if (j < engUpTo) ehtml += '<span style="color:var(--terra);font-weight:600">' + engWords[j] + '</span>';
+        else ehtml += '<span style="opacity:.25">' + engWords[j] + '</span>';
+      }
+      engEl.innerHTML = ehtml;
+    }
+  };
+
+  function reset() { spaEl.textContent = origSpa; pronEl.textContent = origPron; engEl.textContent = origEng; btn.classList.remove('playing'); }
+  u.onend = reset; u.onerror = reset;
+  window.speechSynthesis.speak(u);
+}
+
+function speakSpa(text, btn) {
+  if (drillActive) return;
+  window.speechSynthesis.cancel();
+  const line = btn.closest('.convo-line');
+  const spaEl = line ? line.querySelector('.spanish') : null;
+  const engEl = line ? line.querySelector('.english') : null;
+  const origSpa = spaEl ? spaEl.textContent : '';
+  const origEng = engEl ? engEl.textContent : '';
+
+  const spaWords = origSpa ? origSpa.replace(/[.,!?;:]/g, ' ').split(/\s+/).filter(w => w.length > 0) : [];
+  const engWords = origEng ? origEng.replace(/[.,!?;:]/g, ' ').split(/\s+/).filter(w => w.length > 0) : [];
+  const engPerSpa = spaWords.length ? engWords.length / spaWords.length : 1;
+
+  const langCode = DIALECT_VOICES[currentDialect] || 'es-MX';
+  const u = new SpeechSynthesisUtterance(text); u.lang = langCode; u.rate = parseFloat(speedSlider.value);
+  const v = getEsVoice(); if (v) u.voice = v;
+  if (btn) btn.classList.add('playing');
+
+  if (spaEl && spaWords.length > 0) {
+    let wordIdx = -1;
+    u.onboundary = function(e) {
+      if (e.name === 'word') {
+        wordIdx++;
+        if (wordIdx >= spaWords.length) return;
+        let rhtml = '';
+        for (let j = 0; j < spaWords.length; j++) {
+          if (j > 0) rhtml += ' ';
+          if (j === wordIdx) rhtml += '<span style="color:var(--terra);font-weight:700">' + spaWords[j] + '</span>';
+          else if (j < wordIdx) rhtml += '<span style="color:var(--sage);opacity:.6">' + spaWords[j] + '</span>';
+          else rhtml += '<span style="opacity:.35">' + spaWords[j] + '</span>';
+        }
+        spaEl.innerHTML = rhtml;
+        if (engEl) {
+          const engUpTo = Math.min(Math.ceil((wordIdx + 1) * engPerSpa), engWords.length);
+          let ehtml = '';
+          for (let j = 0; j < engWords.length; j++) {
+            if (j > 0) ehtml += ' ';
+            if (j < engUpTo) ehtml += '<span style="color:var(--terra);font-weight:600">' + engWords[j] + '</span>';
+            else ehtml += '<span style="opacity:.3">' + engWords[j] + '</span>';
+          }
+          engEl.innerHTML = ehtml;
+        }
+      }
+    };
+  }
+
+  function reset() {
+    if (spaEl) spaEl.textContent = origSpa;
+    if (engEl) engEl.textContent = origEng;
+    if (btn) btn.classList.remove('playing');
+  }
+  u.onend = reset; u.onerror = reset;
+  window.speechSynthesis.speak(u);
+}
+
+// DRILL
+function drill(btn) {
+  if (drillActive) return; drillActive = true; window.speechSynthesis.cancel();
+  const row = btn.closest('.phrase-row');
+  const spaText = row.dataset.spa;
+  const words = spaText.replace(/[.,!?;:]/g, '').split(/\s+/).filter(w => w.length > 0);
+
+  const spaEl = row.querySelector('.spanish');
+  const pronEl = row.querySelector('.pronunciation');
+  const engEl = row.querySelector('.english');
+  const origSpa = spaEl.textContent;
+  const origPron = pronEl.textContent;
+  const origEng = engEl.textContent;
+
+  const spaDisplay = origSpa.replace(/[.,!?;:]/g, ' ').split(/\s+/).filter(w => w.length > 0);
+  const pronDisplay = pronChunks(origPron);
+  const engDisplay = origEng.replace(/[.,!?;:]/g, ' ').split(/\s+/).filter(w => w.length > 0);
+
+  const pronPerSpa = pronDisplay.length / words.length;
+  const engPerSpa = engDisplay.length / words.length;
+
+  const langCode = DIALECT_VOICES[currentDialect] || 'es-MX';
+  btn.classList.add('playing');
+  let i = 0;
+
+  function highlight(idx) {
+    let rhtml = '';
+    for (let j = 0; j < spaDisplay.length; j++) {
+      if (j > 0) rhtml += ' ';
+      if (j === idx) rhtml += '<span style="color:var(--sage);font-weight:700;text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--sage)">' + spaDisplay[j] + '</span>';
+      else if (j < idx) rhtml += '<span style="color:var(--sage);opacity:.5">' + spaDisplay[j] + '</span>';
+      else rhtml += '<span style="opacity:.3">' + spaDisplay[j] + '</span>';
+    }
+    spaEl.innerHTML = rhtml;
+
+    const pronUpTo = Math.min(Math.ceil((idx + 1) * pronPerSpa), pronDisplay.length);
+    let phtml = '';
+    for (let j = 0; j < pronDisplay.length; j++) {
+      if (j > 0) phtml += ' ';
+      if (j < pronUpTo) phtml += '<span style="color:var(--sage);font-weight:600;font-style:italic">' + pronDisplay[j] + '</span>';
+      else phtml += '<span style="opacity:.25;font-style:italic">' + pronDisplay[j] + '</span>';
+    }
+    pronEl.innerHTML = phtml;
+
+    const engUpTo = Math.min(Math.ceil((idx + 1) * engPerSpa), engDisplay.length);
+    let ehtml = '';
+    for (let j = 0; j < engDisplay.length; j++) {
+      if (j > 0) ehtml += ' ';
+      if (j < engUpTo) ehtml += '<span style="color:var(--terra);font-weight:600">' + engDisplay[j] + '</span>';
+      else ehtml += '<span style="opacity:.25">' + engDisplay[j] + '</span>';
+    }
+    engEl.innerHTML = ehtml;
+  }
+
+  function reset() { spaEl.textContent = origSpa; pronEl.textContent = origPron; engEl.textContent = origEng; btn.classList.remove('playing'); drillActive = false; }
+
+  function next() {
+    if (i >= words.length) {
+      setTimeout(() => {
+        spaEl.innerHTML = '<span style="color:var(--sage);font-weight:700">' + origSpa + '</span>';
+        pronEl.innerHTML = '<span style="color:var(--sage);font-weight:600;font-style:italic">' + origPron + '</span>';
+        engEl.innerHTML = '<span style="color:var(--terra);font-weight:600">' + origEng + '</span>';
+        const full = new SpeechSynthesisUtterance(spaText);
+        full.lang = langCode; full.rate = parseFloat(speedSlider.value);
+        const v = getEsVoice(); if (v) full.voice = v;
+        full.onend = reset; full.onerror = reset;
+        window.speechSynthesis.speak(full);
+      }, 600);
+      return;
+    }
+    highlight(i);
+    const u = new SpeechSynthesisUtterance(words[i]);
+    u.lang = langCode; u.rate = Math.max(parseFloat(speedSlider.value) * 0.75, 0.4);
+    const v = getEsVoice(); if (v) u.voice = v;
+    u.onend = () => { i++; setTimeout(next, 2000); };
+    u.onerror = () => { i++; setTimeout(next, 2000); };
+    window.speechSynthesis.speak(u);
+  }
+  next();
+}
+
+window.speechSynthesis.onvoiceschanged = () => {};
+window.speechSynthesis.getVoices();
+
+function playConvo(id) {
+  if (drillActive) return;
+  const s = document.getElementById(id), lines = s.querySelectorAll('.convo-line'), texts = [], btns = [];
+  lines.forEach(l => { texts.push(l.querySelector('.spanish').textContent); btns.push(l.querySelector('.play-btn')); });
+  let i = 0;
+  const langCode = DIALECT_VOICES[currentDialect] || 'es-MX';
+  function pn() {
+    if (i >= texts.length) return;
+    const u = new SpeechSynthesisUtterance(texts[i]); u.lang = langCode; u.rate = parseFloat(speedSlider.value);
+    const v = getEsVoice(); if (v) u.voice = v;
+    if (btns[i]) btns[i].classList.add('playing'); const idx = i;
+    u.onend = () => { if (btns[idx]) btns[idx].classList.remove('playing'); i++; setTimeout(pn, 1200); };
+    u.onerror = () => { if (btns[idx]) btns[idx].classList.remove('playing'); i++; setTimeout(pn, 1200); };
+    window.speechSynthesis.speak(u);
+  }
+  window.speechSynthesis.cancel(); pn();
+}
+
+
+// ════════════════════════════════════════════════
+//  MODE SWITCHING
+// ════════════════════════════════════════════════
+function switchMode(mode) {
+  const tabRef = document.getElementById('tabReference');
+  const tabPrac = document.getElementById('tabPractice');
+  const panelRef = document.getElementById('referencePanel');
+  const panelPrac = document.getElementById('practicePanel');
+  const sidebarRef = document.getElementById('refSidebarContent');
+  const sidebarPrac = document.getElementById('pracSidebarContent');
+
+  window.speechSynthesis.cancel();
+
+  if (mode === 'reference') {
+    tabRef.classList.add('active');
+    tabPrac.classList.remove('active');
+    panelRef.classList.remove('hidden');
+    panelPrac.classList.remove('visible');
+    sidebarRef.classList.remove('hidden');
+    sidebarPrac.classList.remove('visible');
+  } else {
+    tabRef.classList.remove('active');
+    tabPrac.classList.add('active');
+    panelRef.classList.add('hidden');
+    panelPrac.classList.add('visible');
+    sidebarRef.classList.add('hidden');
+    sidebarPrac.classList.add('visible');
+  }
+}
+
+
+// ════════════════════════════════════════════════
+//  PRACTICE MODE
+// ════════════════════════════════════════════════
+
+const SCENARIOS = {
+  meeting: {
+    name: "Meeting Someone",
+    emoji: "\ud83d\udc4b",
+    lines: [
+      { spa: "Hola!", pron: "OH-lah!", eng: "Hi!", difficulty: 1 },
+      { spa: "Buenos dias!", pron: "BWEH-nohs DEE-ahs!", eng: "Good morning!", difficulty: 1 },
+      { spa: "Me llamo Elena.", pron: "meh YAH-moh eh-LEH-nah.", eng: "My name is Elena.", difficulty: 1 },
+      { spa: "Como te llamas?", pron: "KOH-moh teh YAH-mahs?", eng: "What is your name?", difficulty: 2 },
+      { spa: "Mucho gusto.", pron: "MOO-choh GOOS-toh.", eng: "Nice to meet you.", difficulty: 1 },
+      { spa: "De donde eres?", pron: "deh DOHN-deh EH-rehs?", eng: "Where are you from?", difficulty: 2 },
+      { spa: "Soy de Estados Unidos.", pron: "soy deh ehs-TAH-dohs oo-NEE-dohs.", eng: "I am from the United States.", difficulty: 2 },
+      { spa: "Hablas ingles?", pron: "AH-blahs een-GLEHS?", eng: "Do you speak English?", difficulty: 2 }
+    ]
+  },
+  restaurant: {
+    name: "At a Restaurant",
+    emoji: "\ud83c\udf7d",
+    lines: [
+      { spa: "Una mesa para dos, por favor.", pron: "OO-nah MEH-sah PAH-rah dohs, por fah-VOR.", eng: "A table for two, please.", difficulty: 2 },
+      { spa: "Quiero un cafe.", pron: "kee-EH-roh oon kah-FEH.", eng: "I want a coffee.", difficulty: 1 },
+      { spa: "Que me recomiendas?", pron: "keh meh reh-koh-mee-EHN-dahs?", eng: "What do you recommend?", difficulty: 2 },
+      { spa: "Esta delicioso!", pron: "ehs-TAH deh-lee-see-OH-soh!", eng: "It's delicious!", difficulty: 1 },
+      { spa: "Agua, por favor.", pron: "AH-gwah, por fah-VOR.", eng: "Water, please.", difficulty: 1 },
+      { spa: "La cuenta, por favor.", pron: "lah KWEHN-tah, por fah-VOR.", eng: "The check, please.", difficulty: 1 },
+      { spa: "Muchas gracias.", pron: "MOO-chahs GRAH-see-ahs.", eng: "Thank you very much.", difficulty: 1 }
+    ]
+  },
+  directions: {
+    name: "Asking for Directions",
+    emoji: "\ud83d\uddfa",
+    lines: [
+      { spa: "Perdon!", pron: "pehr-DOHN!", eng: "Excuse me!", difficulty: 1 },
+      { spa: "Donde esta el metro?", pron: "DOHN-deh ehs-TAH ehl MEH-troh?", eng: "Where is the metro?", difficulty: 1 },
+      { spa: "Esta lejos?", pron: "ehs-TAH LEH-hohs?", eng: "Is it far?", difficulty: 1 },
+      { spa: "Siga derecho.", pron: "SEE-gah deh-REH-choh.", eng: "Go straight.", difficulty: 2 },
+      { spa: "Doble a la derecha.", pron: "DOH-bleh ah lah deh-REH-chah.", eng: "Turn right.", difficulty: 2 },
+      { spa: "Gracias por la ayuda!", pron: "GRAH-see-ahs por lah ah-YOO-dah!", eng: "Thanks for the help!", difficulty: 2 },
+      { spa: "Cuanto tiempo caminando?", pron: "KWAHN-toh tee-EHM-poh kah-mee-NAHN-doh?", eng: "How long walking?", difficulty: 3 }
+    ]
+  },
+  market: {
+    name: "Shopping at a Market",
+    emoji: "\ud83d\udecd\ufe0f",
+    lines: [
+      { spa: "Cuanto cuesta?", pron: "KWAHN-toh KWEHS-tah?", eng: "How much does it cost?", difficulty: 1 },
+      { spa: "Es muy caro.", pron: "ehs MOO-ee KAH-roh.", eng: "It's very expensive.", difficulty: 1 },
+      { spa: "Me da un descuento?", pron: "meh dah oon dehs-KWEHN-toh?", eng: "Can you give me a discount?", difficulty: 2 },
+      { spa: "Me lo llevo.", pron: "meh loh YEH-voh.", eng: "I'll take it.", difficulty: 2 },
+      { spa: "Tiene algo mas barato?", pron: "tee-EH-neh AHL-goh mahs bah-RAH-toh?", eng: "Do you have something cheaper?", difficulty: 2 },
+      { spa: "Me gusta mucho.", pron: "meh GOOS-tah MOO-choh.", eng: "I like it a lot.", difficulty: 1 },
+      { spa: "Acepta tarjeta?", pron: "ah-SEHP-tah tar-HEH-tah?", eng: "Do you accept card?", difficulty: 2 }
+    ]
+  },
+  bar: {
+    name: "Making Friends at a Bar",
+    emoji: "\ud83c\udf7b",
+    lines: [
+      { spa: "Hola! Como te llamas?", pron: "OH-lah! KOH-moh teh YAH-mahs?", eng: "Hi! What's your name?", difficulty: 1 },
+      { spa: "Quieres una cerveza?", pron: "kee-EH-rehs OO-nah sehr-VEH-sah?", eng: "Want a beer?", difficulty: 2 },
+      { spa: "Salud!", pron: "sah-LOOD!", eng: "Cheers!", difficulty: 1 },
+      { spa: "A que te dedicas?", pron: "ah keh teh deh-DEE-kahs?", eng: "What do you do?", difficulty: 2 },
+      { spa: "Dame tu numero.", pron: "DAH-meh too NOO-meh-roh.", eng: "Give me your number.", difficulty: 2 },
+      { spa: "La estamos pasando genial!", pron: "lah ehs-TAH-mohs pah-SAHN-doh heh-nee-AHL!", eng: "We're having a great time!", difficulty: 3 },
+      { spa: "Nos vemos manana?", pron: "nohs VEH-mohs mah-NYAH-nah?", eng: "See you tomorrow?", difficulty: 2 }
+    ]
+  },
+  taxi: {
+    name: "Taking a Taxi/Uber",
+    emoji: "\ud83d\ude95",
+    lines: [
+      { spa: "Necesito un taxi.", pron: "neh-seh-SEE-toh oon TAHK-see.", eng: "I need a taxi.", difficulty: 1 },
+      { spa: "Al hotel, por favor.", pron: "ahl oh-TEHL, por fah-VOR.", eng: "To the hotel, please.", difficulty: 1 },
+      { spa: "Cuanto cuesta al aeropuerto?", pron: "KWAHN-toh KWEHS-tah ahl ah-eh-roh-PWEHR-toh?", eng: "How much to the airport?", difficulty: 2 },
+      { spa: "Pare aqui, por favor.", pron: "PAH-reh ah-KEE, por fah-VOR.", eng: "Stop here, please.", difficulty: 2 },
+      { spa: "Puede ir mas rapido?", pron: "PWEH-deh eer mahs RAH-pee-doh?", eng: "Can you go faster?", difficulty: 2 },
+      { spa: "Quedese con el cambio.", pron: "KEH-deh-seh kohn ehl KAHM-bee-oh.", eng: "Keep the change.", difficulty: 3 },
+      { spa: "Gracias, buen dia!", pron: "GRAH-see-ahs, bwehn DEE-ah!", eng: "Thanks, have a good day!", difficulty: 1 }
+    ]
+  },
+  hotel: {
+    name: "At the Hotel",
+    emoji: "\ud83c\udfe8",
+    lines: [
+      { spa: "Tengo una reservacion.", pron: "TEHN-goh OO-nah reh-sehr-vah-see-OHN.", eng: "I have a reservation.", difficulty: 2 },
+      { spa: "La llave, por favor.", pron: "lah YAH-veh, por fah-VOR.", eng: "The key, please.", difficulty: 1 },
+      { spa: "Donde esta el elevador?", pron: "DOHN-deh ehs-TAH ehl eh-leh-vah-DOR?", eng: "Where is the elevator?", difficulty: 2 },
+      { spa: "A que hora es el desayuno?", pron: "ah keh OH-rah ehs ehl deh-sah-YOO-noh?", eng: "What time is breakfast?", difficulty: 2 },
+      { spa: "Necesito una toalla extra.", pron: "neh-seh-SEE-toh OO-nah toh-AH-yah EHKS-trah.", eng: "I need an extra towel.", difficulty: 2 },
+      { spa: "El wifi no funciona.", pron: "ehl WEE-fee noh foon-see-OH-nah.", eng: "The wifi doesn't work.", difficulty: 3 },
+      { spa: "Muchas gracias por todo!", pron: "MOO-chahs GRAH-see-ahs por TOH-doh!", eng: "Thank you for everything!", difficulty: 1 }
+    ]
+  },
+  catchup: {
+    name: "Catching Up with a Friend",
+    emoji: "\ud83e\udd17",
+    lines: [
+      { spa: "Que gusto verte!", pron: "keh GOOS-toh VEHR-teh!", eng: "Great to see you!", difficulty: 1 },
+      { spa: "Tanto tiempo!", pron: "TAHN-toh tee-EHM-poh!", eng: "It's been so long!", difficulty: 1 },
+      { spa: "Como has estado?", pron: "KOH-moh ahs ehs-TAH-doh?", eng: "How have you been?", difficulty: 2 },
+      { spa: "Te extrane mucho.", pron: "teh ehks-trah-NYEH MOO-choh.", eng: "I missed you a lot.", difficulty: 2 },
+      { spa: "Que has hecho?", pron: "keh ahs EH-choh?", eng: "What have you been up to?", difficulty: 2 },
+      { spa: "Te ves muy bien!", pron: "teh vehs MOO-ee bee-EHN!", eng: "You look great!", difficulty: 2 },
+      { spa: "Tenemos que vernos mas seguido.", pron: "teh-NEH-mohs keh VEHR-nohs mahs seh-GEE-doh.", eng: "We have to see each other more often.", difficulty: 3 },
+      { spa: "Cuidate mucho, nos vemos!", pron: "kwee-DAH-teh MOO-choh, nohs VEH-mohs!", eng: "Take care, see you!", difficulty: 2 }
+    ]
+  }
+};
+
+// Practice state
+let currentScenario = null;
+let currentLineIndex = 0;
+let currentLevel = 1;
+let isRecording = false;
+let recognition = null;
+let autoPlay = false;
+let practiceStats = loadPracticeStats();
+let tracker = loadTracker();
+let scenarioScores = [];
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  renderScenarios();
+  renderTracker();
+  renderStats();
+  setupPracticeSpeedSlider();
+  setupSpeechRecognition();
+});
+
+function loadPracticeStats() {
+  const today = new Date().toDateString();
+  const saved = JSON.parse(localStorage.getItem('es_tutor_stats') || '{}');
+  if (saved.date !== today) {
+    return { date: today, phrases: 0, totalScore: 0, attempts: 0, streak: 0 };
+  }
+  return saved;
+}
+
+function savePracticeStats() {
+  localStorage.setItem('es_tutor_stats', JSON.stringify(practiceStats));
+}
+
+function loadTracker() {
+  return JSON.parse(localStorage.getItem('es_tutor_tracker') || '{}');
+}
+
+function saveTracker() {
+  localStorage.setItem('es_tutor_tracker', JSON.stringify(tracker));
+}
+
+function renderStats() {
+  const el = (id) => document.getElementById(id);
+  if (el('statPhrases')) el('statPhrases').textContent = practiceStats.phrases;
+  if (el('statAccuracy')) el('statAccuracy').textContent =
+    practiceStats.attempts > 0 ? Math.round(practiceStats.totalScore / practiceStats.attempts) + '%' : '\u2014';
+  if (el('statStreak')) el('statStreak').textContent = practiceStats.streak;
+}
+
+function resetProgress() {
+  practiceStats = { date: new Date().toDateString(), phrases: 0, totalScore: 0, attempts: 0, streak: 0 };
+  tracker = {};
+  savePracticeStats(); saveTracker();
+  renderStats(); renderTracker();
+  showToast('Progress reset');
+}
+
+// ── LEVELS ──
+function setLevel(level) {
+  currentLevel = level;
+  document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.level-btn[data-level="${level}"]`).classList.add('active');
+}
+
+// ── SCENARIOS ──
+function renderScenarios() {
+  const list = document.getElementById('scenarioList');
+  list.innerHTML = '';
+  for (const [key, sc] of Object.entries(SCENARIOS)) {
+    const btn = document.createElement('button');
+    btn.className = 'scenario-btn';
+    btn.innerHTML = `<span class="scenario-emoji">${sc.emoji}</span>${sc.name}`;
+    btn.onclick = () => selectScenario(key);
+    btn.dataset.key = key;
+    list.appendChild(btn);
+  }
+}
+
+function selectScenario(key) {
+  currentScenario = key;
+  currentLineIndex = 0;
+  scenarioScores = [];
+
+  document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.scenario-btn[data-key="${key}"]`).classList.add('active');
+
+  const chat = document.getElementById('chatArea');
+  chat.innerHTML = '';
+
+  const sc = SCENARIOS[key];
+  addSystemMessage(`Starting scenario: <span class="scenario-name">${sc.emoji} ${sc.name}</span> &mdash; Level ${currentLevel === 1 ? 'Ultra Beginner' : currentLevel === 2 ? 'Medium' : 'Advanced'}`);
+  document.getElementById('inputArea').style.display = 'flex';
+
+  presentNextPhrase();
+}
+
+// ── CHAT MESSAGES ──
+function addSystemMessage(html) {
+  const div = document.createElement('div');
+  div.className = 'system-msg';
+  div.innerHTML = html;
+  document.getElementById('chatArea').appendChild(div);
+  scrollChat();
+}
+
+function addAIMessage(line) {
+  const row = document.createElement('div');
+  row.className = 'msg-row ai';
+
+  let pronHTML = '', engHTML = '';
+
+  if (currentLevel === 1) {
+    pronHTML = `<div class="msg-pronunciation">${line.pron}</div>`;
+    engHTML = `<div class="msg-english">${line.eng}</div>`;
+  } else if (currentLevel === 2) {
+    pronHTML = `<div class="msg-pronunciation">${line.pron}</div>`;
+    engHTML = `<div class="msg-english msg-hidden" data-reveal="eng">${line.eng}</div>`;
+  } else {
+    pronHTML = `<div class="msg-pronunciation msg-hidden" data-reveal="pron">${line.pron}</div>`;
+    engHTML = `<div class="msg-english msg-hidden" data-reveal="eng">${line.eng}</div>`;
+  }
+
+  row.innerHTML = `
+    <div class="msg-avatar">AI</div>
+    <div class="msg-bubble">
+      <div class="msg-spanish">${line.spa}</div>
+      ${pronHTML}
+      ${engHTML}
+    </div>
+  `;
+  document.getElementById('chatArea').appendChild(row);
+  scrollChat();
+  return row;
+}
+
+function revealHiddenFields() {
+  const chatArea = document.getElementById('chatArea');
+  chatArea.querySelectorAll('.msg-hidden').forEach(el => {
+    el.classList.remove('msg-hidden');
+    el.classList.add('msg-revealed');
+  });
+}
+
+function addUserMessage(spokenText, expectedText, score) {
+  const row = document.createElement('div');
+  row.className = 'msg-row user';
+
+  const colorClass = score >= 70 ? 'green' : score >= 40 ? 'yellow' : 'red';
+  const comparison = buildWordComparison(spokenText, expectedText);
+
+  row.innerHTML = `
+    <div class="msg-avatar">You</div>
+    <div class="msg-bubble">
+      <div class="msg-spanish">${spokenText || '<em style="color:var(--text3)">No speech detected</em>'}</div>
+      <div class="score-bar">
+        <div class="score-header">
+          <span class="score-label">Pronunciation Match</span>
+          <span class="score-pct ${colorClass}">${score}%</span>
+        </div>
+        <div class="score-track">
+          <div class="score-fill ${colorClass}" style="width:${score}%"></div>
+        </div>
+        <div class="word-compare">${comparison}</div>
+      </div>
+    </div>
+  `;
+  document.getElementById('chatArea').appendChild(row);
+  scrollChat();
+}
+
+function buildWordComparison(spoken, expected) {
+  const clean = s => s.toLowerCase().replace(/[^\w\u00e0-\u00ff\s]/g, '').trim();
+  const spokenWords = clean(spoken).split(/\s+/).filter(Boolean);
+  const expectedWords = clean(expected).split(/\s+/).filter(Boolean);
+  let html = '';
+
+  expectedWords.forEach((ew, i) => {
+    const sw = spokenWords[i] || '';
+    if (sw === ew) {
+      html += `<span class="word-match">${ew}</span> `;
+    } else if (sw) {
+      html += `<span class="word-miss">${sw}</span><span class="word-expected">(${ew})</span> `;
+    } else {
+      html += `<span class="word-expected">${ew}</span> `;
+    }
+  });
+
+  for (let i = expectedWords.length; i < spokenWords.length; i++) {
+    html += `<span class="word-miss">${spokenWords[i]}</span> `;
+  }
+  return html;
+}
+
+function scrollChat() {
+  const chat = document.getElementById('chatArea');
+  requestAnimationFrame(() => chat.scrollTop = chat.scrollHeight);
+}
+
+// ── CONVERSATION FLOW ──
+function getFilteredLines() {
+  const sc = SCENARIOS[currentScenario];
+  return sc.lines.filter(l => l.difficulty <= currentLevel);
+}
+
+function presentNextPhrase() {
+  const filteredLines = getFilteredLines();
+  if (currentLineIndex >= filteredLines.length) {
+    showScenarioSummary();
+    document.getElementById('inputArea').style.display = 'none';
+    return;
+  }
+
+  const line = filteredLines[currentLineIndex];
+  addAIMessage(line);
+
+  if (autoPlay) {
+    practSpeakSpanish(line.spa);
+  }
+
+  document.getElementById('inputHint').innerHTML =
+    `<strong>Tap the mic</strong> and say: "${line.spa}"`;
+}
+
+function showScenarioSummary() {
+  if (scenarioScores.length === 0) {
+    addSystemMessage('Scenario complete! Great work.');
+    return;
+  }
+  const avg = Math.round(scenarioScores.reduce((a, b) => a + b, 0) / scenarioScores.length);
+  const perfect = scenarioScores.filter(s => s >= 90).length;
+  const needs_work = scenarioScores.filter(s => s < 50).length;
+
+  const card = document.createElement('div');
+  card.className = 'summary-card';
+  card.innerHTML = `
+    <h3>Scenario Complete</h3>
+    <div class="summary-stat"><span class="summary-stat-label">Phrases practiced</span><span class="summary-stat-value">${scenarioScores.length}</span></div>
+    <div class="summary-stat"><span class="summary-stat-label">Average accuracy</span><span class="summary-stat-value" style="color:${avg >= 70 ? 'var(--green)' : avg >= 40 ? 'var(--yellow)' : 'var(--red)'}">${avg}%</span></div>
+    <div class="summary-stat"><span class="summary-stat-label">Nailed it (90%+)</span><span class="summary-stat-value">${perfect}</span></div>
+    <div class="summary-stat"><span class="summary-stat-label">Needs work (&lt;50%)</span><span class="summary-stat-value">${needs_work}</span></div>
+  `;
+  document.getElementById('chatArea').appendChild(card);
+  scrollChat();
+}
+
+function replayCurrentPhrase() {
+  if (!currentScenario) return;
+  const filteredLines = getFilteredLines();
+  const line = filteredLines[currentLineIndex];
+  if (line) practSpeakSpanish(line.spa);
+}
+
+function skipPhrase() {
+  if (!currentScenario) return;
+  const filteredLines = getFilteredLines();
+  const line = filteredLines[currentLineIndex];
+  if (line) {
+    updateTracker(line.spa, 0);
+    scenarioScores.push(0);
+  }
+  revealHiddenFields();
+  currentLineIndex++;
+  setTimeout(() => presentNextPhrase(), 500);
+}
+
+// ── PRACTICE SPEECH SYNTHESIS ──
+function practSpeakSpanish(text) {
+  const synth = window.speechSynthesis;
+  synth.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  const langCode = DIALECT_VOICES[practiceDialect] || 'es-MX';
+  utter.lang = langCode;
+  utter.rate = parseFloat(document.getElementById('practiceSpeedSlider').value);
+  const voices = synth.getVoices();
+  const esVoice = voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('es'));
+  if (esVoice) utter.voice = esVoice;
+  synth.speak(utter);
+}
+
+// ── SPEECH RECOGNITION ──
+function setupSpeechRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+  recognition = new SR();
+  recognition.lang = 'es';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 3;
+  recognition.continuous = false;
+
+  recognition.onresult = (event) => {
+    const result = event.results[0][0].transcript;
+    handleUserSpeech(result);
+  };
+
+  recognition.onerror = (event) => {
+    if (event.error === 'no-speech') {
+      handleUserSpeech('');
+    } else {
+      showToast('Mic error: ' + event.error);
+    }
+    stopRecording();
+  };
+
+  recognition.onend = () => {
+    stopRecording();
+  };
+}
+
+function toggleRecording() {
+  if (!recognition) {
+    showToast('Speech recognition not available');
+    return;
+  }
+  if (isRecording) {
+    recognition.stop();
+    stopRecording();
+  } else {
+    startRecording();
+  }
+}
+
+function startRecording() {
+  isRecording = true;
+  document.getElementById('micBtn').classList.add('recording');
+  document.getElementById('inputHint').innerHTML = '<strong>Listening...</strong> Speak now';
+  recognition.lang = 'es';
+  recognition.start();
+}
+
+function stopRecording() {
+  isRecording = false;
+  document.getElementById('micBtn').classList.remove('recording');
+  if (currentScenario) {
+    const filteredLines = getFilteredLines();
+    if (currentLineIndex < filteredLines.length) {
+      const line = filteredLines[currentLineIndex];
+      document.getElementById('inputHint').innerHTML =
+        `<strong>Tap the mic</strong> and say: "${line.spa}"`;
+    }
+  }
+}
+
+function handleUserSpeech(spokenText) {
+  if (!currentScenario) return;
+  const filteredLines = getFilteredLines();
+  if (currentLineIndex >= filteredLines.length) return;
+
+  const line = filteredLines[currentLineIndex];
+  const expected = line.spa;
+  const score = calculateScore(spokenText, expected);
+
+  addUserMessage(spokenText, expected, score);
+  revealHiddenFields();
+
+  practiceStats.phrases++;
+  practiceStats.attempts++;
+  practiceStats.totalScore += score;
+  if (score >= 70) {
+    practiceStats.streak++;
+  } else {
+    practiceStats.streak = 0;
+  }
+  savePracticeStats();
+  renderStats();
+
+  updateTracker(expected, score);
+  scenarioScores.push(score);
+
+  setTimeout(() => {
+    currentLineIndex++;
+    presentNextPhrase();
+  }, 1500);
+}
+
+function calculateScore(spoken, expected) {
+  if (!spoken) return 0;
+
+  const clean = s => s.toLowerCase().replace(/[^\w\u00e0-\u00ff\s]/g, '').trim();
+  const spokenWords = clean(spoken).split(/\s+/).filter(Boolean);
+  const expectedWords = clean(expected).split(/\s+/).filter(Boolean);
+
+  if (expectedWords.length === 0) return 0;
+
+  const leniencyFactor = currentLevel === 1 ? 0.4 : currentLevel === 2 ? 0.3 : 0.2;
+
+  let matches = 0;
+  expectedWords.forEach((ew, i) => {
+    if (spokenWords[i] === ew) {
+      matches++;
+    } else if (spokenWords[i] && levenshtein(spokenWords[i], ew) <= Math.max(1, Math.floor(ew.length * leniencyFactor))) {
+      matches += 0.5;
+    }
+  });
+
+  const extraPenalty = Math.max(0, spokenWords.length - expectedWords.length) * 0.1;
+  const raw = (matches / expectedWords.length) * 100 - (extraPenalty * 10);
+  return Math.max(0, Math.min(100, Math.round(raw)));
+}
+
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const d = Array.from({ length: m + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= n; j++) d[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      d[i][j] = a[i - 1] === b[j - 1] ? d[i - 1][j - 1]
+        : 1 + Math.min(d[i - 1][j], d[i][j - 1], d[i - 1][j - 1]);
+    }
+  }
+  return d[m][n];
+}
+
+// ── SPACED REPETITION TRACKER ──
+function updateTracker(phrase, score) {
+  if (!tracker[phrase]) {
+    tracker[phrase] = { scores: [], lastPracticed: Date.now() };
+  }
+  tracker[phrase].scores.push(score);
+  if (tracker[phrase].scores.length > 5) {
+    tracker[phrase].scores = tracker[phrase].scores.slice(-5);
+  }
+  tracker[phrase].lastPracticed = Date.now();
+  saveTracker();
+  renderTracker();
+}
+
+function getTrackerConfidence(scores) {
+  if (scores.length === 0) return 'red';
+  const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+  if (avg >= 70) return 'green';
+  if (avg >= 40) return 'yellow';
+  return 'red';
+}
+
+function renderTracker() {
+  const list = document.getElementById('trackerList');
+  if (!list) return;
+  const entries = Object.entries(tracker);
+
+  const weakEntries = entries.filter(([, data]) => {
+    const avg = data.scores.reduce((a, b) => a + b, 0) / data.scores.length;
+    return avg < 70;
+  });
+
+  if (weakEntries.length === 0) {
+    list.innerHTML = '<div style="font-size:.7rem;color:var(--text3);padding:8px 0;">No weak phrases yet</div>';
+    return;
+  }
+
+  weakEntries.sort((a, b) => {
+    const avgA = a[1].scores.reduce((x, y) => x + y, 0) / a[1].scores.length;
+    const avgB = b[1].scores.reduce((x, y) => x + y, 0) / b[1].scores.length;
+    return avgA - avgB;
+  });
+
+  list.innerHTML = weakEntries.slice(0, 10).map(([phrase, data]) => {
+    const conf = getTrackerConfidence(data.scores);
+    const avg = Math.round(data.scores.reduce((a, b) => a + b, 0) / data.scores.length);
+    return `<div class="tracker-item">
+      <span class="tracker-dot ${conf}"></span>
+      <span class="tracker-phrase" title="${phrase} \u2014 ${avg}%">${phrase}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── PRACTICE SPEED SLIDER ──
+function setupPracticeSpeedSlider() {
+  const slider = document.getElementById('practiceSpeedSlider');
+  const val = document.getElementById('practiceSpeedVal');
+  if (!slider || !val) return;
+  slider.addEventListener('input', () => {
+    val.textContent = parseFloat(slider.value).toFixed(1) + 'x';
+  });
+}
+
+// ── AUTO PLAY ──
+function toggleAutoPlay() {
+  autoPlay = !autoPlay;
+  const btn = document.getElementById('autoPlayBtn');
+  btn.textContent = autoPlay ? 'On' : 'Off';
+  btn.classList.toggle('active', autoPlay);
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Mobile menu
+function toggleMobileMenu(){
+  const sb=document.getElementById('sidebar');
+  const ov=document.getElementById('sidebarOverlay');
+  const hb=document.getElementById('hamburgerBtn');
+  sb.classList.toggle('open');
+  ov.classList.toggle('show');
+  hb.classList.toggle('open');
+}
+// Close mobile menu when clicking a nav link
+document.querySelectorAll('.sidebar a, .scenario-btn').forEach(el=>{
+  el.addEventListener('click',()=>{
+    if(window.innerWidth<=900){
+      const sb=document.getElementById('sidebar');
+      const ov=document.getElementById('sidebarOverlay');
+      const hb=document.getElementById('hamburgerBtn');
+      sb.classList.remove('open');ov.classList.remove('show');hb.classList.remove('open');
+    }
+  });
+});
+</script>
+</body>
+</html>

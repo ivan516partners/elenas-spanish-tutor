@@ -1,0 +1,16 @@
+{
+  "name": "Elena's Spanish Tutor",
+  "short_name": "Spanish Tutor",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#faf7f2",
+  "description": "Interactive Spanish language drill with karaoke pronunciation, dialect variants, and conversation practice",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇪🇸</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
